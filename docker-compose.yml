@@ -8,7 +8,8 @@ services:
       POSTGRES_USER: interviewpilot
       POSTGRES_PASSWORD: secret
     ports:
-      - "5432:5432"
+          # 5433 istifadə olunur, çünki Windows-da lokal Postgres servisi 5432-ni tutur
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
