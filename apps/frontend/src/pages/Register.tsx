@@ -1,8 +1,10 @@
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';     
+import { useNavigate } from 'react-router';
+import { useMutation } from '@tanstack/react-query'    
 import { useAuthStore } from '../store/authStore';
 import { registerSchema, type RegisterInput } from '../lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { registerUser } from '../api/auth';
 
 
 
@@ -20,11 +22,17 @@ export default function Register(){
     })
 
 
-    
+
+    const mutation = useMutation({
+        mutationFn:registerUser,
+        onSuccess: (data) => {
+            setAuth(data.user, data.token)
+            navigate('/dashboard')
+        },
+    })
 
 
-
-
+    const onSubmit = (data: RegisterInput) => mutation.mutate(data)
 
 
 
