@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useNavigate } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
@@ -7,7 +7,7 @@ import { useAuthStore } from "./store/authStore";
 
 function ProtectedRoute ({ children }: {children: ReactNode}){
   const token = useAuthStore((s) => s.token)
-  return token ? <>{children}</> : <Navigate to="/Login" replace/>
+  return token ? <>{children}</> : <Navigate to="/login" replace/>
 }
 
 export default function App() {
