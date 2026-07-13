@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use OpenApi\Attributes as OA;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
