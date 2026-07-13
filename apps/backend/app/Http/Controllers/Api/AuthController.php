@@ -10,6 +10,39 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    
+#[OA\Post(
+        path: '/auth/register',
+        summary: 'Register a new user',
+        tags: ['Authentication'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'email', 'password', 'password_confirmation'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'Islam Cabarli'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'test@test.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password123'),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'password123'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Registration successful',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'user', type: 'object'),
+                        new OA\Property(property: 'token', type: 'string'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
+
+
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -30,6 +63,36 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
+
+
+    #[OA\Post(
+        path: '/auth/login',
+        summary: 'İstifadəçi girişi',
+        tags: ['Authentication'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'test@test.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password123'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Login successful',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'user', type: 'object'),
+                        new OA\Property(property: 'token', type: 'string'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Invalid email or password'),
+        ]
+    )]
 
 
     public function Login(Request $request)
@@ -55,12 +118,32 @@ class AuthController extends Controller
             
     }
 
+     #[OA\Post(
+        path: '/auth/logout',
+        summary: 'User logout',
+        tags: ['Authentication'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Logged out successfully'),
+        ]
+    )]
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out successfully']);
     }
 
+
+    #[OA\Get(
+        path: '/auth/me',
+        summary: 'Get current user information',
+        tags: ['Authentication'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'User information returned successfully'),
+        ]
+    )]
     public function me(Request $request)
     {
         return response()->json($request->user());
