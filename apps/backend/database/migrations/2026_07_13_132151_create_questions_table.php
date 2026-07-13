@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('interview_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('skill_id')->nullable()->constrained()->nullOnDelete();
+            $table->text('content');
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }
