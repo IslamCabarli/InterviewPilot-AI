@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-use OpenApi\Attributes as OA;
+
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use OpenApi\Attributes as OA;
 
 #[OA\Info(
     title: 'InterviewPilot AI API',

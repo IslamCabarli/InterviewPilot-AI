@@ -12,7 +12,7 @@ class Question extends Model
     use HasFactory;
 
     protected $fillable = [
-        'interview_id', 'skill_id', 'content', 'order'
+        'interview_id', 'skill_id', 'content', 'order',
     ];
 
     public function interview(): BelongsTo

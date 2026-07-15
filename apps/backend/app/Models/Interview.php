@@ -13,7 +13,7 @@ class Interview extends Model
 
     protected $fillable = [
         'user_id', 'type', 'difficulty', 'status',
-         'overall_score', 'score_breakdown', 'started_at', 'completed_at',
+        'overall_score', 'score_breakdown', 'started_at', 'completed_at',
     ];
 
     protected $casts = [
@@ -26,7 +26,7 @@ class Interview extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class);

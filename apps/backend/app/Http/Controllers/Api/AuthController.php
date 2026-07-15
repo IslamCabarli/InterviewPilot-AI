@@ -11,8 +11,7 @@ use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
 {
-    
-#[OA\Post(
+    #[OA\Post(
         path: '/auth/register',
         summary: 'Register a new user',
         tags: ['Authentication'],
@@ -42,8 +41,6 @@ class AuthController extends Controller
             new OA\Response(response: 422, description: 'Validation error'),
         ]
     )]
-
-
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -64,7 +61,6 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
-
 
     #[OA\Post(
         path: '/auth/login',
@@ -94,32 +90,29 @@ class AuthController extends Controller
             new OA\Response(response: 422, description: 'Invalid email or password'),
         ]
     )]
-
-
     public function Login(Request $request)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-    
-        $user = User::where('email', $credentials['email'])->first();
-        if (!$user || !Hash::check($credentials['password'], $user->password))
-            {
-                throw ValidationException::withMessages([
-                    'email' => ['The provided credentials are incorrect.'],
-                ]);
-            }
-            $token = $user->createToken('web')->plainTextToken;
 
-            return response() ->json([
-                'user' => $user,
-                'token' => $token,
+        $user = User::where('email', $credentials['email'])->first();
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
             ]);
-            
+        }
+        $token = $user->createToken('web')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
+
     }
 
-     #[OA\Post(
+    #[OA\Post(
         path: '/auth/logout',
         summary: 'User logout',
         tags: ['Authentication'],
@@ -128,13 +121,12 @@ class AuthController extends Controller
             new OA\Response(response: 200, description: 'Logged out successfully'),
         ]
     )]
-
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+
         return response()->json(['message' => 'Logged out successfully']);
     }
-
 
     #[OA\Get(
         path: '/auth/me',
