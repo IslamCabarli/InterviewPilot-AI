@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
+
 class AuthController extends Controller
 {
     #[OA\Post(
@@ -54,6 +55,8 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
+        
+        $user->assignRole('user');
         $token = $user->createToken('web')->plainTextToken;
 
         return response()->json([
@@ -109,7 +112,6 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token,
         ]);
-
     }
 
     #[OA\Post(
@@ -139,6 +141,10 @@ class AuthController extends Controller
     )]
     public function me(Request $request)
     {
-        return response()->json($request->user());
+
+        $user = $request->user();
+        $user->load('roles');
+
+        return response()->json($user);
     }
 }
