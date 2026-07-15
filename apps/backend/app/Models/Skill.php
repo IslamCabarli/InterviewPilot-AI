@@ -11,7 +11,7 @@ class Skill extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'category'
+        'name', 'category',
     ];
 
     public function questions(): HasMany
