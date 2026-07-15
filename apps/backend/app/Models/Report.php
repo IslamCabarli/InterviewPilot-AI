@@ -11,6 +11,7 @@ class Report extends Model
     use HasFactory;
 
     protected $fillable = [
+        'interview_id',
         'summary','weak_points',
         'strong_points','recommended_topics',
         'speaking_speed', 'filler_word_count'
