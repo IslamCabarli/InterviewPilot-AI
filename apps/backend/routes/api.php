@@ -12,3 +12,9 @@ Route::prefix('auth')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
     });
 });
+
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/ping', function () {
+        return response()->json(['message' => 'Salam, admin!']);
+    });
+}); 
