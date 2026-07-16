@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/authStore";
 
 const navItems = [
     { to: "/dashboard", label: "Dashboard" },
-    { to: "/interviews", label: "Interviews" },
+    { to: "/interview", label: "Interviews" },
     { to: "/profile", label: "Profile" },
     { to: "/settings", label: "Settings" }
 ]
@@ -17,8 +17,7 @@ export default function Layout() {
         navigate("/login")
     }
 
-    return
-    (
+    return(
 
         <div className="flex min-h-screen bg-bg font-body text-text-primary">
             <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-surface">
