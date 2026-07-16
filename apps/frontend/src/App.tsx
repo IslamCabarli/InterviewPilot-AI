@@ -4,6 +4,9 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
+import Interview from './pages/Interview'
+import Profile from './pages/Profile'
+import Settings from './pages/Settings'
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -25,6 +28,9 @@ export default function App() {
         }
       >
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/interview" element={<Interview />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
 
       </Route>
 
