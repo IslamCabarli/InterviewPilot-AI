@@ -176,6 +176,160 @@
                     }
                 ]
             }
+        },
+        "/interviews": {
+            "post": {
+                "tags": [
+                    "Interviews"
+                ],
+                "summary": "Start new interview",
+                "operationId": "94e8a0b6c85ba033839299bc8992cdae",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "type",
+                                    "difficulty"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "example": "backend"
+                                    },
+                                    "difficulty": {
+                                        "type": "string",
+                                        "example": "medium"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The interview has started; the first question is being relayed."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/interviews/{interview}/answer": {
+            "post": {
+                "tags": [
+                    "Interviews"
+                ],
+                "summary": "Cavab göndər və növbəti sualı al",
+                "operationId": "a207485e38923f550d1020b25ee9d65c",
+                "parameters": [
+                    {
+                        "name": "interview",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "question_id",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "question_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Mənim cavabım budur..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cavab qeydə alındı, növbəti sual qaytarıldı"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/interviews/{interview}/complete": {
+            "post": {
+                "tags": [
+                    "Interviews"
+                ],
+                "summary": "Müsahibəni tamamla",
+                "operationId": "5c8efd1c6017b80966c796454897d0f8",
+                "parameters": [
+                    {
+                        "name": "interview",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Müsahibə tamamlandı"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/interviews/{interview}": {
+            "get": {
+                "tags": [
+                    "Interviews"
+                ],
+                "summary": "Müsahibə detallarını al (bütün sual-cavablarla)",
+                "operationId": "e100ce83f8c7e827251b228c6b7a7912",
+                "parameters": [
+                    {
+                        "name": "interview",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Müsahibə detalları"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -191,6 +345,10 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Interviews",
+            "description": "Interviews"
         }
     ]
 }
