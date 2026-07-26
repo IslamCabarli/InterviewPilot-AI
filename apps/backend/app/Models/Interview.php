@@ -13,8 +13,14 @@ class Interview extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'type', 'difficulty', 'status',
-        'overall_score', 'score_breakdown', 'started_at', 'completed_at',
+        'user_id',
+        'type',
+        'difficulty',
+        'status',
+        'overall_score',
+        'score_breakdown',
+        'started_at',
+        'completed_at',
     ];
 
     protected $casts = [
@@ -36,5 +42,14 @@ class Interview extends Model
     public function report(): HasOne
     {
         return $this->hasOne(Report::class);
+    }
+    public function isActive(): bool
+    {
+        return $this->status === 'in_progress';
+    }
+
+    public function questionCount(): int
+    {
+        return $this->questions()->count();
     }
 }
