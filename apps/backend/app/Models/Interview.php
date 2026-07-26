@@ -43,6 +43,7 @@ class Interview extends Model
     {
         return $this->hasOne(Report::class);
     }
+
     public function isActive(): bool
     {
         return $this->status === 'in_progress';
