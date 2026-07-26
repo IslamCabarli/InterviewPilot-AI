@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, Link } from 'react-router'
-import { loginSchema, type LoginInput } from '../lib/validation'
+import { LoginSchema, type LoginInput } from '../lib/validation'
 import { useLogin } from '../auth/queries'
 
 export default function Login() {
@@ -12,7 +12,7 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) })
+  } = useForm<LoginInput>({ resolver: zodResolver(LoginSchema) })
 
   const onSubmit = (data: LoginInput) => {
     loginMutation.mutate(data, {
