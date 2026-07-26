@@ -53,7 +53,7 @@ class InterviewController extends Controller
             'type' => $validated['type'],
             'difficulty' => $validated['difficulty'],
             'status' => 'in_progress',
-            'started' => now(),
+            'started_at' => now(),
         ]); 
     
 
