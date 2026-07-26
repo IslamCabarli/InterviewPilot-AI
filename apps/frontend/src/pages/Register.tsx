@@ -1,14 +1,12 @@
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
-import { useMutation } from '@tanstack/react-query'
-import { useAuthStore } from '../store/authStore'
-import { registerSchema, type RegisterInput } from '../lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { registerUser } from '../api/auth'
+import { registerSchema, type RegisterInput } from '../lib/validation'
+import { useRegister } from '../auth/queries'
 
 export default function Register() {
   const navigate = useNavigate()
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const registerMutation = useRegister()
 
   const {
     register,
@@ -18,29 +16,25 @@ export default function Register() {
     resolver: zodResolver(registerSchema),
   })
 
-  const mutation = useMutation({
-    mutationFn: registerUser,
-    onSuccess: (data) => {
-      setAuth(data.user, data.token)
-      navigate('/dashboard')
-    },
-  })
-
-  const onSubmit = (data: RegisterInput) => mutation.mutate(data)
+  const onSubmit = (data: RegisterInput) => {
+    registerMutation.mutate(data, {
+      onSuccess: () => navigate('/dashboard'),
+    })
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-sm rounded-xl bg-gray-900 p-8 shadow-lg">
-        <h1 className="mb-6 text-2xl font-bold text-white">Register</h1>
+    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-8">
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Qeydiyyat</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
           <div>
             <input
               {...register('name')}
               placeholder="Ad Soyad"
-              className="w-full rounded-md bg-gray-800 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
             />
-            {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>}
+            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
           </div>
 
           <div>
@@ -48,52 +42,54 @@ export default function Register() {
               {...register('email')}
               type="email"
               placeholder="Email"
-              className="w-full rounded-md bg-gray-800 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
             />
-            {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
+            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
           </div>
 
           <div>
             <input
               {...register('password')}
               type="password"
-              placeholder="Password"
-              className="w-full rounded-md bg-gray-800 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Şifrə"
+              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-red-400">{errors.password.message}</p>
+              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
             )}
           </div>
+
           <div>
             <input
               {...register('password_confirmation')}
               type="password"
               placeholder="Şifrəni təsdiqlə"
-              className="w-full rounded-md bg-gray-800 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
             />
             {errors.password_confirmation && (
-              <p className="mt-1 text-sm text-red-400">{errors.password_confirmation.message}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {errors.password_confirmation.message}
+              </p>
             )}
           </div>
 
-          {mutation.isError && (
-            <p className="text-sm text-red-400">Qeydiyyat uğursuz oldu. Yenidən cəhd et.</p>
+          {registerMutation.isError && (
+            <p className="text-xs text-red-500">Qeydiyyat uğursuz oldu. Yenidən cəhd et.</p>
           )}
 
           <button
             type="submit"
-            disabled={mutation.isPending}
-            className="w-full rounded-md bg-indigo-600 py-2 font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+            disabled={registerMutation.isPending}
+            className="w-full rounded-md bg-accent py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
           >
-            {mutation.isPending ? 'Sending...' : 'Register now'}
+            {registerMutation.isPending ? 'Göndərilir...' : 'Qeydiyyatdan keç'}
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-400">
-          Already have an account?{' '}
-          <Link to="/login" className="text-indigo-600">
-            {' '}
-            Log in{' '}
+        <p className="mt-4 text-center text-sm text-text-secondary">
+          Artıq hesabın var?{' '}
+          <Link to="/login" className="text-accent">
+            Daxil ol
           </Link>
         </p>
       </div>
