@@ -25,3 +25,21 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Backend
+apps/backend/vendor/
+apps/backend/.env
+apps/backend/storage/*.key
+apps/backend/storage/logs/
+apps/backend/storage/framework/cache/
+apps/backend/storage/framework/sessions/
+apps/backend/storage/framework/views/
+apps/backend/bootstrap/cache/*.php
+
+# Frontend
+apps/frontend/node_modules/
+apps/frontend/dist/
+
+# Ümumi
+.DS_Store
+*.log
