@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router'
-import { useAuthStore } from './store/authStore'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import 
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Interview from './pages/Interview'
