@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router";
-import { useAuthStore } from "../store/authStore";
+import { useLogout } from '../auth/queries'
+import { useAuth } from '../auth/useAuth'
 
 const navItems = [
     { to: "/dashboard", label: "Dashboard" },
@@ -9,15 +10,18 @@ const navItems = [
 ]
 
 export default function Layout() {
-    const { user, logout } = useAuthStore()
+    const { user } = useAuth()
+    const logoutMutation = useLogout()
     const navigate = useNavigate()
 
     const handleLogout = () => {
-        logout()
-        navigate("/login")
+        logoutMutation.mutate(undefined, {
+            onSettled: () => navigate('/login'),
+        })
     }
 
-    return(
+
+    return (
 
         <div className="flex min-h-screen bg-bg font-body text-text-primary">
             <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-surface">
