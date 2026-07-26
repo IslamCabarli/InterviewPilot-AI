@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
-
 class AuthController extends Controller
 {
     #[OA\Post(
@@ -55,7 +54,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
-        
+
         $user->assignRole('user');
         $token = $user->createToken('web')->plainTextToken;
 

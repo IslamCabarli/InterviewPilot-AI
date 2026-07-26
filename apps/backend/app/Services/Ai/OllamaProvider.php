@@ -8,7 +8,9 @@ use RuntimeException;
 class OllamaProvider implements AiProviderInterface
 {
     private string $baseUrl;
+
     private string $model;
+
     private int $timeout;
 
     public function __construct()
@@ -33,7 +35,7 @@ class OllamaProvider implements AiProviderInterface
             ->post("{$this->baseUrl}/api/chat", $payload);
 
         if ($response->failed()) {
-            throw new RuntimeException('Ollama API error: ' . $response->body());
+            throw new RuntimeException('Ollama API error: '.$response->body());
         }
 
         return $response->json('message.content') ?? '';
@@ -55,7 +57,7 @@ class OllamaProvider implements AiProviderInterface
             ->post("{$this->baseUrl}/api/chat", $payload);
 
         if ($response->failed()) {
-            throw new RuntimeException('Ollama API error: ' . $response->body());
+            throw new RuntimeException('Ollama API error: '.$response->body());
         }
 
         $body = $response->toPsrResponse()->getBody();
