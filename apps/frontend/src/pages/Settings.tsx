@@ -10,9 +10,7 @@ export default function Settings() {
           <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
             AI Provider
           </p>
-          <p className="mt-1 text-sm text-text-secondary">
-            Müsahibəni aparan AI mühərrikini seç.
-          </p>
+          <p className="mt-1 text-sm text-text-secondary">Müsahibəni aparan AI mühərrikini seç.</p>
           <select className="mt-4 w-full rounded-md border border-border bg-bg px-3 py-2 text-sm">
             <option>Ollama (lokal)</option>
             <option>OpenAI</option>

@@ -36,9 +36,7 @@ export default function Profile() {
         </div>
 
         <div className="mt-6 rounded-lg border border-border bg-surface p-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-            CV
-          </p>
+          <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">CV</p>
           <p className="mt-1 text-sm text-text-secondary">
             CV-ni yüklə, AI sualları ona uyğunlaşdırsın.
           </p>
@@ -73,9 +71,7 @@ export default function Profile() {
               </>
             ) : (
               <>
-                <p className="text-sm font-medium text-text-primary">
-                  PDF-i buraya sürüklə
-                </p>
+                <p className="text-sm font-medium text-text-primary">PDF-i buraya sürüklə</p>
                 <p className="mt-1 text-xs text-text-secondary">və ya klikləyib seç</p>
               </>
             )}

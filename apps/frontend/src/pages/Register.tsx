@@ -67,9 +67,7 @@ export default function Register() {
               className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
             />
             {errors.password_confirmation && (
-              <p className="mt-1 text-xs text-red-500">
-                {errors.password_confirmation.message}
-              </p>
+              <p className="mt-1 text-xs text-red-500">{errors.password_confirmation.message}</p>
             )}
           </div>
 

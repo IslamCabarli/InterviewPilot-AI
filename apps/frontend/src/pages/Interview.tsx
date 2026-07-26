@@ -1,22 +1,15 @@
-import PageTransition  from '../components/PageTransition'
+import PageTransition from '../components/PageTransition'
 
-const interviewTypes = [
-  'Frontend', 'Backend', 'Full Stack', 'DevOps', 'System Design', 'HR',
-]
-
+const interviewTypes = ['Frontend', 'Backend', 'Full Stack', 'DevOps', 'System Design', 'HR']
 
 const difficulties = ['Easy', 'Medium', 'Hard', 'Senior']
 
-export default function Interview(){
-    return(
-        <PageTransition>
+export default function Interview() {
+  return (
+    <PageTransition>
       <div className="mx-auto max-w-3xl px-8 py-10">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">
-          Yeni müsahibə
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Növü və çətinlik səviyyəsini seç.
-        </p>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Yeni müsahibə</h1>
+        <p className="mt-1 text-sm text-text-secondary">Növü və çətinlik səviyyəsini seç.</p>
 
         <div className="mt-8">
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-text-secondary">
@@ -55,5 +48,5 @@ export default function Interview(){
         </button>
       </div>
     </PageTransition>
-    )
+  )
 }

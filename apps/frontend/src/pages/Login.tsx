@@ -62,7 +62,10 @@ export default function Login() {
         </form>
 
         <p className="mt-4 text-center text-sm text-text-secondary">
-          Hesabın yoxdur? <Link to="/register" className="text-accent">Qeydiyyatdan keç</Link>
+          Hesabın yoxdur?{' '}
+          <Link to="/register" className="text-accent">
+            Qeydiyyatdan keç
+          </Link>
         </p>
       </div>
     </div>
