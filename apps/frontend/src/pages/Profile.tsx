@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react'
 import PageTransition from '../components/PageTransition'
-import { useAuthStore } from '../store/authStore'
+import { useAuth } from '../auth/useAuth'
 
 export default function Profile() {
-  const user = useAuthStore((s) => s.user)
+  const { user } = useAuth()
   const [fileName, setFileName] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
