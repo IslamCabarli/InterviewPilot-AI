@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useAuthStore } from '../store/authStore'
+import { useAuth } from '../auth/useAuth'
 import PageTransition from '../components/PageTransition'
 
 // Hələ backend endpoint-i yoxdur — statik data ilə struktur qururuq
@@ -28,7 +28,7 @@ function StatCard({ label, value, unit }: { label: string; value: number; unit?:
 }
 
 export default function Dashboard() {
-  const user = useAuthStore((s) => s.user)
+  const { user } = useAuth()
   const { data } = useQuery({ queryKey: ['dashboard-stats'], queryFn: fetchDashboardStats })
 
   return (
