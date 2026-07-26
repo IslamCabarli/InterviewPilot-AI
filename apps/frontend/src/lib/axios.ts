@@ -30,5 +30,5 @@ api.interceptors.response.use(
       queryClient.removeQueries({ queryKey: authKeys.me })
     }
     return Promise.reject(error)
-  }
+  },
 )
