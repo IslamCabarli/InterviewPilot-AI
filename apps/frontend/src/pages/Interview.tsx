@@ -4,6 +4,9 @@ import PageTransition from '../components/PageTransition'
 import ChatBubble from '../components/ChatBubble'
 import TypingIndicator from '../components/TypingIndicator'
 import { startInterview, submitAnswer, completeInterview, type Question } from '../api/interview'
+import { useAudioRecorder } from '../hooks/useAudioRecorder'
+import { transcribeAudio } from '../api/speech'
+import MicButton from '../components/MicButton'
 
 const interviewTypes = [
   { value: 'backend', label: 'Backend' },
@@ -35,6 +38,27 @@ export default function Interview() {
   const [input, setInput] = useState('')
   const [isCompleted, setIsCompleted] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  const [isTranscribing, setIsTranscribing] = useState(false)
+  const { isRecording, startRecording, stopRecording } = useAudioRecorder()
+
+
+  const handleMicClick = async () => {
+    if (isRecording) {
+      const audioBlob = await stopRecording()
+      setIsTranscribing(true)
+      try {
+        const text = await transcribeAudio(audioBlob)
+        setInput((prev) => (prev ? `${prev} ${text}` : text))
+      } catch {
+        // Səssiz uğursuzluq — istifadəçi yaza bilər, funksiya bloklanmır
+      } finally {
+        setIsTranscribing(false)
+      }
+    } else {
+      await startRecording()
+    }
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -86,11 +110,10 @@ export default function Interview() {
                 <button
                   key={t.value}
                   onClick={() => setType(t.value)}
-                  className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                    type === t.value
-                      ? 'border-accent bg-accent text-white'
-                      : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
-                  }`}
+                  className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${type === t.value
+                    ? 'border-accent bg-accent text-white'
+                    : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
+                    }`}
                 >
                   {t.label}
                 </button>
@@ -107,11 +130,10 @@ export default function Interview() {
                 <button
                   key={d.value}
                   onClick={() => setDifficulty(d.value)}
-                  className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                    difficulty === d.value
-                      ? 'border-accent bg-accent text-white'
-                      : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
-                  }`}
+                  className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${difficulty === d.value
+                    ? 'border-accent bg-accent text-white'
+                    : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
+                    }`}
                 >
                   {d.label}
                 </button>
@@ -184,6 +206,11 @@ export default function Interview() {
         </div>
 
         <div className="flex gap-2 border-t border-border pt-4">
+          <MicButton
+            isRecording={isRecording}
+            isProcessing={isTranscribing}
+            onClick={handleMicClick}
+          />
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -193,7 +220,7 @@ export default function Interview() {
                 handleSend()
               }
             }}
-            placeholder="Cavabını yaz..."
+            placeholder={isTranscribing ? 'Mətnə çevrilir...' : 'Cavabını yaz və ya danış...'}
             rows={2}
             className="flex-1 resize-none rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
           />
