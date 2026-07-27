@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InterviewController;
+use App\Http\Controllers\Api\SpeechController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,6 +36,18 @@ Route::middleware('auth:sanctum')
         Route::post('/{interview}/complete', [InterviewController::class, 'complete']);
     });
 
+/*
+|--------------------------------------------------------------------------
+| Speech Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')
+    ->prefix('speech')
+    ->group(function () {
+        Route::post('/transcribe', [SpeechController::class, 'transcribe']);
+    });
+    
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
