@@ -41,4 +41,8 @@ return [
         'timeout' => env('OLLAMA_TIMEOUT', 60),
     ],
 
+    'whisper' => [
+        'url' => env('WHISPER_URL', 'http://localhost:8001'),
+    ],
+
 ];
