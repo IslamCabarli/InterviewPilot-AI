@@ -7,6 +7,8 @@ use App\Services\Ai\OllamaProvider;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Speech\SpeechToTextInterface;
 use App\Services\Speech\FasterWhisperProvider;
+use App\Services\Speech\TextToSpeechInterface;
+use App\Services\Speech\PiperProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(AiProviderInterface::class, OllamaProvider::class);
         $this->app->bind(SpeechToTextInterface::class, FasterWhisperProvider::class);
+        $this->app->bind(TextToSpeechInterface::class, PiperProvider::class);
     }
 
     public function boot(): void
