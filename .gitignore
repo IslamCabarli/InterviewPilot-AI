@@ -1,0 +1,5 @@
+# Piper voice models
+services/tts/piper/voices/
+
+# Test audio
+services/tts/piper/test.wav
