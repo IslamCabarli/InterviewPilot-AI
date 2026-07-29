@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')
     ->prefix('speech')
     ->group(function () {
         Route::post('/transcribe', [SpeechController::class, 'transcribe']);
+        Route::post('/synthesize', [SpeechController::class, 'synthesize']);
     });
     
 /*
