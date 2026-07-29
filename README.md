@@ -276,3 +276,45 @@ Build an admin dashboard using Filament:
 ### Month 5 Outcome
 
 A production-ready, fully documented, Dockerized, open-source AI interview platform that can be easily installed and extended by developers.
+
+
+
+
+## Text-to-Speech Setup (Piper)
+
+InterviewPilot AI uses **Piper TTS** for local text-to-speech synthesis.
+
+### 1. Download Piper
+
+Download the latest Windows release from the Piper GitHub releases page and extract it to:
+
+```text
+services/tts/piper/
+```
+
+### 2. Download a voice model
+
+Download an English voice model (for example, `en_US-amy-medium`) and place these files in:
+
+```text
+services/tts/piper/voices/
+```
+
+Required files:
+
+```text
+en_US-amy-medium.onnx
+en_US-amy-medium.onnx.json
+```
+
+> Voice models are not included in this repository to keep the project lightweight.
+
+### 3. Test Piper
+
+Run the following command inside `services/tts/piper`:
+
+```powershell
+echo "Hello, this is a test." | .\piper.exe --model voices\en_US-amy-medium.onnx --output_file test.wav
+```
+
+If `test.wav` is generated and plays correctly, Piper is configured successfully.
