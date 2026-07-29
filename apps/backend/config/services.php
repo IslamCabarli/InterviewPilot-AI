@@ -45,4 +45,8 @@ return [
         'url' => env('WHISPER_URL', 'http://localhost:8001'),
     ],
 
+
+    'piper' => [
+    'url' => env('PIPER_URL', 'http://localhost:8002'),
+],
 ];
