@@ -94,7 +94,9 @@ export default function Interview() {
     onSuccess: (data) => {
       setInterviewId(data.interview.id)
       setCurrentQuestionId(data.question.id)
-      setMessages((prev) => [...prev, { role: 'ai', content: data.question.content }])
+
+      setMessages([{ role: 'ai', content: data.question.content }])
+
     },
   })
 
@@ -180,7 +182,6 @@ export default function Interview() {
             {startMutation.isPending ? 'Hazırlanır...' : 'Müsahibəyə başla'}
           </button>
         </div>
-        <audio ref={audioRef} className="hidden" />
       </PageTransition>
     )
   }
@@ -259,6 +260,7 @@ export default function Interview() {
           </button>
         </div>
       </div>
+      <audio ref={audioRef} className="hidden" />
     </PageTransition>
   )
 }
