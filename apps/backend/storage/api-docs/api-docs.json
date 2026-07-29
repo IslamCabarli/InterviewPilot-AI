@@ -330,6 +330,25 @@
                     }
                 ]
             }
+        },
+        "/speech/transcribe": {
+            "post": {
+                "tags": [
+                    "Speech"
+                ],
+                "summary": "Səs faylını mətnə çevir",
+                "operationId": "e3bdcd74e1793368894773ada2ccb8e7",
+                "responses": {
+                    "200": {
+                        "description": "Transkripsiya edilmiş mətn"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -349,6 +368,10 @@
         {
             "name": "Interviews",
             "description": "Interviews"
+        },
+        {
+            "name": "Speech",
+            "description": "Speech"
         }
     ]
 }

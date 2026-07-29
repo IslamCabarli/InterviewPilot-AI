@@ -3,3 +3,11 @@ services/tts/piper/voices/
 
 # Test audio
 services/tts/piper/test.wav
+
+# Python virtual environments
+venv/
+**/venv/
+
+# Python cache
+__pycache__/
+*.pyc
