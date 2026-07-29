@@ -5,7 +5,7 @@ import ChatBubble from '../components/ChatBubble'
 import TypingIndicator from '../components/TypingIndicator'
 import { startInterview, submitAnswer, completeInterview, type Question } from '../api/interview'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
-import { transcribeAudio } from '../api/speech'
+import { transcribeAudio, synthesizeSpeech } from '../api/speech'
 import MicButton from '../components/MicButton'
 
 const interviewTypes = [
@@ -38,6 +38,7 @@ export default function Interview() {
   const [input, setInput] = useState('')
   const [isCompleted, setIsCompleted] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const [isTranscribing, setIsTranscribing] = useState(false)
   const { isRecording, startRecording, stopRecording } = useAudioRecorder()
@@ -64,12 +65,36 @@ export default function Interview() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1]
+
+    if (!lastMessage || lastMessage.role !== 'ai') return
+
+    let url: string | null = null
+
+    synthesizeSpeech(lastMessage.content)
+      .then((audioUrl) => {
+        url = audioUrl
+
+        if (audioRef.current) {
+          audioRef.current.src = audioUrl
+          audioRef.current.play().catch(() => { })
+        }
+      })
+      .catch(() => { })
+      .finally(() => {
+        if (url) {
+          setTimeout(() => URL.revokeObjectURL(url!), 10000)
+        }
+      })
+  }, [messages])
+
   const startMutation = useMutation({
     mutationFn: () => startInterview(type!, difficulty!),
     onSuccess: (data) => {
       setInterviewId(data.interview.id)
       setCurrentQuestionId(data.question.id)
-      setMessages([{ role: 'ai', content: data.question.content }])
+      setMessages((prev) => [...prev, { role: 'ai', content: data.question.content }])
     },
   })
 
@@ -155,6 +180,7 @@ export default function Interview() {
             {startMutation.isPending ? 'Hazırlanır...' : 'Müsahibəyə başla'}
           </button>
         </div>
+        <audio ref={audioRef} className="hidden" />
       </PageTransition>
     )
   }
