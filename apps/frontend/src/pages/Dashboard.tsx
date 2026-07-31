@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../auth/useAuth'
 import PageTransition from '../components/PageTransition'
-import { useEffect } from 'react'
-import { echo } from '../lib/echo'
 
 const fetchDashboardStats = async () => {
   await new Promise((r) => setTimeout(r, 300))
@@ -30,18 +28,7 @@ export default function Dashboard() {
   const { user } = useAuth()
   const { data } = useQuery({ queryKey: ['dashboard-stats'], queryFn: fetchDashboardStats })
 
-  useEffect(() => {
-    const channel = echo.channel('test-channel')
-
-    channel.listen('.TestBroadcast', (data: { message: string }) => {
-      console.log('Reverb-dən mesaj gəldi:', data)
-    })
-
-    return () => {
-      echo.leaveChannel('test-channel')
-    }
-  }, [])
-
+ 
   return (
     <PageTransition>
       <div className="mx-auto max-w-5xl px-8 py-10">
