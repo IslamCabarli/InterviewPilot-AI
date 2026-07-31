@@ -228,7 +228,7 @@ export default function Interview() {
           </div>
 
           <div className="flex items-center gap-6">
-            <AvatarOrb state={avatarState} level={audioLevel} />
+            <AvatarOrb state={avatarState} />
             <button
               onClick={() => completeMutation.mutate()}
               disabled={completeMutation.isPending}
