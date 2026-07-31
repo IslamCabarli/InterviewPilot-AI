@@ -20,4 +20,9 @@ class TestBroadcast implements ShouldBroadcast
     {
         return [new Channel('test-channel')];
     }
+
+    public function broadcastAs(): string
+{
+    return 'TestBroadcast';
+}
 }
