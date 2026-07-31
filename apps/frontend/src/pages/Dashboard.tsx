@@ -4,7 +4,6 @@ import PageTransition from '../components/PageTransition'
 import { useEffect } from 'react'
 import { echo } from '../lib/echo'
 
-// Hələ backend endpoint-i yoxdur — statik data ilə struktur qururuq
 const fetchDashboardStats = async () => {
   await new Promise((r) => setTimeout(r, 300))
   return {
@@ -14,21 +13,6 @@ const fetchDashboardStats = async () => {
     weeklyStreak: 0,
   }
 }
-
-
-
-// Dashboard komponentinin daxilində, useQuery-dən sonra:
-useEffect(() => {
-  const channel = echo.channel('test-channel')
-
-  channel.listen('.TestBroadcast', (data: { message: string }) => {
-    console.log('Reverb-dən mesaj gəldi:', data)
-  })
-
-  return () => {
-    echo.leaveChannel('test-channel')
-  }
-}, [])
 
 function StatCard({ label, value, unit }: { label: string; value: number; unit?: string }) {
   return (
@@ -45,6 +29,18 @@ function StatCard({ label, value, unit }: { label: string; value: number; unit?:
 export default function Dashboard() {
   const { user } = useAuth()
   const { data } = useQuery({ queryKey: ['dashboard-stats'], queryFn: fetchDashboardStats })
+
+  useEffect(() => {
+    const channel = echo.channel('test-channel')
+
+    channel.listen('.TestBroadcast', (data: { message: string }) => {
+      console.log('Reverb-dən mesaj gəldi:', data)
+    })
+
+    return () => {
+      echo.leaveChannel('test-channel')
+    }
+  }, [])
 
   return (
     <PageTransition>
