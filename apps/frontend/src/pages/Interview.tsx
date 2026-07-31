@@ -7,6 +7,8 @@ import { startInterview, submitAnswer, completeInterview, type Question } from '
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { transcribeAudio, synthesizeSpeech } from '../api/speech'
 import MicButton from '../components/MicButton'
+import { useAudioLevel } from '../hooks/useAudioLevel'
+import AvatarOrb from '../components/AvatarOrb'
 
 const interviewTypes = [
   { value: 'backend', label: 'Backend' },
@@ -40,8 +42,17 @@ export default function Interview() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  const [isTranscribing, setIsTranscribing] = useState(false)
+  const [isAiSpeaking, setIsAiSpeaking] = useState(false)
+  const audioLevel = useAudioLevel(audioRef)
   const { isRecording, startRecording, stopRecording } = useAudioRecorder()
+
+  const avatarState: 'idle' | 'speaking' | 'listening' = isRecording
+    ? 'listening'
+    : isAiSpeaking
+      ? 'speaking'
+      : 'idle'
+
+  const [isTranscribing, setIsTranscribing] = useState(false)
 
 
   const handleMicClick = async () => {
@@ -215,13 +226,17 @@ export default function Interview() {
               {difficulties.find((d) => d.value === difficulty)?.label} səviyyə
             </p>
           </div>
-          <button
-            onClick={() => completeMutation.mutate()}
-            disabled={completeMutation.isPending}
-            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent hover:text-accent"
-          >
-            Müsahibəni bitir
-          </button>
+
+          <div className="flex items-center gap-6">
+            <AvatarOrb state={avatarState} level={audioLevel} />
+            <button
+              onClick={() => completeMutation.mutate()}
+              disabled={completeMutation.isPending}
+              className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent hover:text-accent"
+            >
+              Müsahibəni bitir
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto py-6">
@@ -260,7 +275,11 @@ export default function Interview() {
           </button>
         </div>
       </div>
-      <audio ref={audioRef} className="hidden" />
+      <audio ref={audioRef}
+        className="hidden"
+        onPlay={() => setIsAiSpeaking(true)}
+        onPause={() => setIsAiSpeaking(false)}
+        onEnded={() => setIsAiSpeaking(false)} />
     </PageTransition>
   )
 }
