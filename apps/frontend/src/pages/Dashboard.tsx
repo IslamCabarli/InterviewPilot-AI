@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../auth/useAuth'
 import PageTransition from '../components/PageTransition'
+import { useEffect } from 'react'
+import { echo } from '../lib/echo'
 
 // Hələ backend endpoint-i yoxdur — statik data ilə struktur qururuq
 const fetchDashboardStats = async () => {
@@ -12,6 +14,21 @@ const fetchDashboardStats = async () => {
     weeklyStreak: 0,
   }
 }
+
+
+
+// Dashboard komponentinin daxilində, useQuery-dən sonra:
+useEffect(() => {
+  const channel = echo.channel('test-channel')
+
+  channel.listen('.TestBroadcast', (data: { message: string }) => {
+    console.log('Reverb-dən mesaj gəldi:', data)
+  })
+
+  return () => {
+    echo.leaveChannel('test-channel')
+  }
+}, [])
 
 function StatCard({ label, value, unit }: { label: string; value: number; unit?: string }) {
   return (
