@@ -11,6 +11,7 @@ use App\Services\Ai\ConversationBuilder;
 use App\Services\Ai\InterviewPromptBuilder;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
+use App\Events\AiResponseChunk;
 
 class InterviewController extends Controller
 {
@@ -42,7 +43,7 @@ class InterviewController extends Controller
         ]
     )]
 
-    public function start( Request $request )
+    public function start(Request $request)
     {
         $validated = $request->validate([
             'type' => ['required', 'string'],
@@ -54,8 +55,8 @@ class InterviewController extends Controller
             'difficulty' => $validated['difficulty'],
             'status' => 'in_progress',
             'started_at' => now(),
-        ]); 
-    
+        ]);
+
 
         $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty']);
 
@@ -73,11 +74,10 @@ class InterviewController extends Controller
         return response()->json([
             'interview' => $interview,
             'question' => $question,
-            ], 201);
+        ], 201);
+    }
 
-    }   
-
-     #[OA\Post(
+    #[OA\Post(
         path: '/interviews/{interview}/answer',
         summary: 'Cavab göndər və növbəti sualı al',
         tags: ['Interviews'],
@@ -119,11 +119,18 @@ class InterviewController extends Controller
         $systemPrompt = $this->promptBuilder->build($interview->type, $interview->difficulty);
         $conversation = $this->conversationBuilder->build($interview);
 
-        $aiResponse = $this->aiProvider->chat($systemPrompt, $conversation);
+        $fullResponse = '';
+
+        $this->aiProvider->streamResponse($systemPrompt, $conversation, function ($chunk) use (&$fullResponse, $interview) {
+            $fullResponse .= $chunk;
+            broadcast(new AiResponseChunk($interview->id, $chunk));
+        });
+
+        broadcast(new AiResponseChunk($interview->id, '', done: true));
 
         $nextQuestion = Question::create([
             'interview_id' => $interview->id,
-            'content' => $aiResponse,
+            'content' => $fullResponse,
             'order' => $interview->questionCount() + 1,
         ]);
 
@@ -181,6 +188,4 @@ class InterviewController extends Controller
     {
         abort_if($interview->user_id !== $request->user()->id, 403, 'Bu müsahibəyə icazən yoxdur.');
     }
-
-
 }
