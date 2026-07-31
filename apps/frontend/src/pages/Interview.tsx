@@ -9,6 +9,7 @@ import { transcribeAudio, synthesizeSpeech } from '../api/speech'
 import MicButton from '../components/MicButton'
 import { useAudioLevel } from '../hooks/useAudioLevel'
 import AvatarOrb from '../components/AvatarOrb'
+import { createEcho } from '../lib/echo'
 
 const interviewTypes = [
   { value: 'backend', label: 'Backend' },
@@ -41,6 +42,9 @@ export default function Interview() {
   const [isCompleted, setIsCompleted] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const [streamingText, setStreamingText] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
 
   const [isAiSpeaking, setIsAiSpeaking] = useState(false)
   const audioLevel = useAudioLevel(audioRef)
@@ -100,6 +104,27 @@ export default function Interview() {
       })
   }, [messages])
 
+  useEffect(() => {
+    if (!interviewId) return
+
+    const echo = createEcho()
+    const channel = echo.private(`interview.${interviewId}`)
+
+    channel.listen('.AiResponseChunk', (data: { chunk: string; done: boolean }) => {
+      if (data.done) {
+        setIsStreaming(false)
+        return
+      }
+      setIsStreaming(true)
+      setStreamingText((prev) => prev + data.chunk)
+    })
+
+    return () => {
+      echo.leaveChannel(`interview.${interviewId}`)
+      echo.disconnect()
+    }
+  }, [interviewId])
+
   const startMutation = useMutation({
     mutationFn: () => startInterview(type!, difficulty!),
     onSuccess: (data) => {
@@ -116,6 +141,7 @@ export default function Interview() {
     onSuccess: (data: { question: Question }) => {
       setCurrentQuestionId(data.question.id)
       setMessages((prev) => [...prev, { role: 'ai', content: data.question.content }])
+      setStreamingText('')
     },
   })
 
@@ -243,7 +269,8 @@ export default function Interview() {
           {messages.map((msg, i) => (
             <ChatBubble key={i} role={msg.role} content={msg.content} />
           ))}
-          {answerMutation.isPending && <TypingIndicator />}
+          {isStreaming && streamingText && <ChatBubble role="ai" content={streamingText} />}
+          {answerMutation.isPending && !isStreaming && <TypingIndicator />}
           <div ref={bottomRef} />
         </div>
 

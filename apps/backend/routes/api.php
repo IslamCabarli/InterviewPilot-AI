@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\SpeechController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,6 +19,7 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
+        Broadcast::routes(['middleware' => ['auth:sanctum']]);
     });
 });
 
@@ -48,7 +50,7 @@ Route::middleware('auth:sanctum')
         Route::post('/transcribe', [SpeechController::class, 'transcribe']);
         Route::post('/synthesize', [SpeechController::class, 'synthesize']);
     });
-    
+
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
