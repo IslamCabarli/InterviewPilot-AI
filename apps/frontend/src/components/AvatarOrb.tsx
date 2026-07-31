@@ -4,12 +4,9 @@ type AvatarState = 'idle' | 'speaking' | 'listening'
 
 interface AvatarOrbProps {
   state: AvatarState
-  level?: number // 0-1, yalnız 'speaking' zamanı istifadə olunur
 }
 
-export default function AvatarOrb({ state, level = 0 }: AvatarOrbProps) {
-  const scale = state === 'speaking' ? 1 + level * 0.25 : 1
-
+export default function AvatarOrb({ state }: AvatarOrbProps) {
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="relative flex h-16 w-16 items-center justify-center">
@@ -22,8 +19,16 @@ export default function AvatarOrb({ state, level = 0 }: AvatarOrbProps) {
         )}
 
         <motion.div
-          animate={{ scale }}
-          transition={{ duration: 0.08, ease: 'linear' }}
+          animate={
+            state === 'speaking'
+              ? { scale: [1, 1.18, 1] }
+              : { scale: 1 }
+          }
+          transition={
+            state === 'speaking'
+              ? { duration: 0.9, repeat: Infinity, ease: 'easeInOut' }
+              : { duration: 0.2 }
+          }
           className={`h-11 w-11 rounded-full transition-colors ${
             state === 'speaking'
               ? 'bg-accent'
