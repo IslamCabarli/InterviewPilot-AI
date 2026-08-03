@@ -165,7 +165,7 @@ class InterviewController extends Controller
 
         return response()->json([
             'interview' => $interview->fresh(),
-            'report' => $report,    
+            'report' => $report,
         ]);
     }
 
@@ -193,5 +193,33 @@ class InterviewController extends Controller
     private function authorizeInterview(Request $request, Interview $interview): void
     {
         abort_if($interview->user_id !== $request->user()->id, 403, 'Bu müsahibəyə icazən yoxdur.');
+    }
+
+    #[OA\Get(
+        path: '/interviews/{interview}/report',
+        summary: 'Müsahibənin hesabatını al',
+        tags: ['Interviews'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'interview', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Hesabat'),
+        ]
+    )]
+    public function report(Request $request, Interview $interview)
+    {
+        $this->authorizeInterview($request, $interview);
+
+        $interview->load('report');
+
+        if (! $interview->report) {
+            abort(404, 'Bu müsahibə üçün hesabat hələ hazır deyil.');
+        }
+
+        return response()->json([
+            'interview' => $interview,
+            'report' => $interview->report,
+        ]);
     }
 }
