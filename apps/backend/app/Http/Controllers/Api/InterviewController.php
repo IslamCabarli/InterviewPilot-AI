@@ -12,6 +12,7 @@ use App\Services\Ai\InterviewPromptBuilder;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 use App\Events\AiResponseChunk;
+use App\Services\Ai\InterviewEvaluator;
 
 class InterviewController extends Controller
 {
@@ -19,6 +20,7 @@ class InterviewController extends Controller
         private readonly AiProviderInterface $aiProvider,
         private readonly InterviewPromptBuilder $promptBuilder,
         private readonly ConversationBuilder $conversationBuilder,
+        private readonly InterviewEvaluator $evaluator,
 
     ) {}
 
@@ -159,8 +161,12 @@ class InterviewController extends Controller
             'status' => 'completed',
             'completed_at' => now(),
         ]);
+        $report = $this->evaluator->evaluate($interview);
 
-        return response()->json(['interview' => $interview]);
+        return response()->json([
+            'interview' => $interview->fresh(),
+            'report' => $report,    
+        ]);
     }
 
     #[OA\Get(
