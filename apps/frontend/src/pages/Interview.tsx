@@ -234,9 +234,16 @@ export default function Interview() {
           <h1 className="font-display text-2xl font-semibold tracking-tight">
             Müsahibə tamamlandı
           </h1>
-          <p className="mt-2 text-sm text-text-secondary">
-            Nəticələr hazırlanır. Hesabat funksiyası tezliklə əlavə olunacaq.
-          </p>
+          {report ? (
+            <div className="mt-6 text-left">
+              <p className="text-sm text-text-secondary">{report.summary}</p>
+              <pre className="mt-4 rounded-md border border-border bg-surface p-4 text-xs">
+                {JSON.stringify(report, null, 2)}
+              </pre>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-text-secondary">Qiymətləndirilir...</p>
+          )}
         </div>
       </PageTransition>
     )
