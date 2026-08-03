@@ -24,6 +24,23 @@ export interface Interview {
   questions: Question[]
 }
 
+export interface ScoreBreakdown {
+  technical: number
+  communication: number
+  confidence: number
+  problem_solving: number
+  best_practices: number
+}
+
+export interface Report {
+  id: number
+  interview_id: number
+  summary: string
+  weak_points: string[]
+  strong_points: string[]
+  recommended_topics: string[]
+}
+
 export const startInterview = async (type: string, difficulty: string) => {
   const res = await api.post<{ interview: Interview; question: Question }>('/interviews', {
     type,
@@ -46,6 +63,8 @@ export const getInterview = async (interviewId: number) => {
 }
 
 export const completeInterview = async (interviewId: number) => {
-  const res = await api.post<{ interview: Interview }>(`/interviews/${interviewId}/complete`)
-  return res.data.interview
+  const res = await api.post<{ interview: Interview; report: Report }>(
+    `/interviews/${interviewId}/complete`
+  )
+  return res.data
 }
