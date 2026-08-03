@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import PageTransition from '../components/PageTransition'
 import ChatBubble from '../components/ChatBubble'
 import TypingIndicator from '../components/TypingIndicator'
-import { startInterview, submitAnswer, completeInterview, type Question } from '../api/interview'
+import { startInterview, submitAnswer, completeInterview, type Question, type Report } from '../api/interview'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { transcribeAudio, synthesizeSpeech } from '../api/speech'
 import MicButton from '../components/MicButton'
@@ -42,7 +42,7 @@ export default function Interview() {
   const [isCompleted, setIsCompleted] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-
+  const [report, setReport] = useState<Report | null>(null)
   const [streamingText, setStreamingText] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
 
@@ -147,7 +147,10 @@ export default function Interview() {
 
   const completeMutation = useMutation({
     mutationFn: () => completeInterview(interviewId!),
-    onSuccess: () => setIsCompleted(true),
+    onSuccess: (data) => {
+      setReport(data.report)
+      setIsCompleted(true)
+    },
   })
 
   const handleSend = () => {
