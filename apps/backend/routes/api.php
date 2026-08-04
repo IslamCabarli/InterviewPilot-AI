@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')
         Route::get('/{interview}', [InterviewController::class, 'show']);
         Route::post('/{interview}/answer', [InterviewController::class, 'answer']);
         Route::post('/{interview}/complete', [InterviewController::class, 'complete']);
+        Route::get('/{interview}/report', [InterviewController::class, 'report']);
     });
 
 /*
