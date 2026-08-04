@@ -10,6 +10,7 @@ import MicButton from '../components/MicButton'
 import { useAudioLevel } from '../hooks/useAudioLevel'
 import AvatarOrb from '../components/AvatarOrb'
 import { createEcho } from '../lib/echo'
+import { useNavigate } from 'react-router'
 
 const interviewTypes = [
   { value: 'backend', label: 'Backend' },
@@ -57,7 +58,6 @@ export default function Interview() {
       : 'idle'
 
   const [isTranscribing, setIsTranscribing] = useState(false)
-
 
   const handleMicClick = async () => {
     if (isRecording) {
@@ -145,11 +145,11 @@ export default function Interview() {
     },
   })
 
+  const navigate = useNavigate()
   const completeMutation = useMutation({
     mutationFn: () => completeInterview(interviewId!),
-    onSuccess: (data) => {
-      setReport(data.report)
-      setIsCompleted(true)
+    onSuccess: () => {
+      navigate(`/interviews/${interviewId}/report`)
     },
   })
 
