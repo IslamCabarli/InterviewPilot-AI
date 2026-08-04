@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Interview from './pages/Interview'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
+import InterviewReport from './pages/InterviewReport'
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/interview" element={<Interview />} />
+          <Route path="/interviews/:id/report" element={<InterviewReport />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
