@@ -50,6 +50,7 @@ class InterviewController extends Controller
         $validated = $request->validate([
             'type' => ['required', 'string'],
             'difficulty' => ['required', 'string', 'in:easy,medium,hard,senior'],
+            'use_cv' => ['boolean'],
         ]);
         $interview = Interview::create([
             'user_id' => $request->user()->id,
@@ -59,10 +60,10 @@ class InterviewController extends Controller
             'started_at' => now(),
         ]);
 
+        $cvText = ($validated['use_cv'] ?? false) ? $request->user()->cv_text : null;
+        $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty'],   $cvText);
 
-        $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty']);
 
-        // İlk mesaj — konuşmanı başlatmaq üçün AI-a boş "başla" tapşırığı veririk
         $aiResponse = $this->aiProvider->chat($systemPrompt, [
             ['role' => 'user', 'content' => 'Start the interview.']
         ]);
@@ -118,7 +119,8 @@ class InterviewController extends Controller
             'content' => $validated['content'],
         ]);
 
-        $systemPrompt = $this->promptBuilder->build($interview->type, $interview->difficulty);
+        $cvText = $interview->user->cv_text;
+        $systemPrompt = $this->promptBuilder->build($interview->type, $interview->difficulty, $cvText);
         $conversation = $this->conversationBuilder->build($interview);
 
         $fullResponse = '';
