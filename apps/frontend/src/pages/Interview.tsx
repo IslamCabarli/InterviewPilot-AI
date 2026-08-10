@@ -240,9 +240,9 @@ export default function Interview() {
             <button
               onClick={() => completeMutation.mutate()}
               disabled={completeMutation.isPending}
-              className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent hover:text-accent"
+              className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Müsahibəni bitir
+              {completeMutation.isPending ? 'Qiymətləndirilir...' : 'Müsahibəni bitir'}
             </button>
           </div>
         </div>
