@@ -1,16 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  RadarChart, PolarGrid, PolarAngleAxis, Radar,
+} from 'recharts'
 import { useAuth } from '../auth/useAuth'
 import PageTransition from '../components/PageTransition'
-
-const fetchDashboardStats = async () => {
-  await new Promise((r) => setTimeout(r, 300))
-  return {
-    todayPractice: 0,
-    averageScore: 0,
-    completedInterviews: 0,
-    weeklyStreak: 0,
-  }
-}
+import { getDashboardStats } from '../api/dashboard'
+import { useNavigate } from 'react-router'
 
 function StatCard({ label, value, unit }: { label: string; value: number; unit?: string }) {
   return (
@@ -26,9 +22,11 @@ function StatCard({ label, value, unit }: { label: string; value: number; unit?:
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const { data } = useQuery({ queryKey: ['dashboard-stats'], queryFn: fetchDashboardStats })
+  const navigate = useNavigate()
+  const { data, isLoading } = useQuery({ queryKey: ['dashboard-stats'], queryFn: getDashboardStats })
 
- 
+  const hasData = (data?.completedInterviews ?? 0) > 0
+
   return (
     <PageTransition>
       <div className="mx-auto max-w-5xl px-8 py-10">
@@ -41,13 +39,80 @@ export default function Dashboard() {
           <StatCard label="Bugünkü təcrübə" value={data?.todayPractice ?? 0} />
           <StatCard label="Ortalama bal" value={data?.averageScore ?? 0} unit="/100" />
           <StatCard label="Tamamlanmış" value={data?.completedInterviews ?? 0} />
-          <StatCard label="Həftəlik seriya" value={data?.weeklyStreak ?? 0} unit="gün" />
+          <StatCard label="Seriya" value={data?.weeklyStreak ?? 0} unit="gün" />
         </div>
 
-        <div className="mt-8 rounded-lg border border-border bg-surface p-8 text-center">
-          <p className="text-sm text-text-secondary">Hələ heç bir müsahibə keçirməmisən.</p>
-          <button className="mt-4 rounded-md bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent/90">
-            İlk müsahibəni başlat
+        {!isLoading && !hasData && (
+          <div className="mt-8 rounded-lg border border-border bg-surface p-8 text-center">
+            <p className="text-sm text-text-secondary">
+              Hələ heç bir müsahibə keçirməmisən.
+            </p>
+            <button
+              onClick={() => navigate('/interview')}
+              className="mt-4 rounded-md bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent/90"
+            >
+              İlk müsahibəni başlat
+            </button>
+          </div>
+        )}
+
+        {hasData && (
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-border bg-surface p-6">
+              <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
+                Həftəlik tərəqqi
+              </p>
+              <div className="mt-4 h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data?.weeklyProgress}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E4E4E7" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#6B6F76' }} axisLine={{ stroke: '#E4E4E7' }} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#6B6F76' }} axisLine={{ stroke: '#E4E4E7' }} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: 6, border: '1px solid #E4E4E7', fontSize: 12 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#2554F6"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: '#2554F6' }}
+                      connectNulls
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border bg-surface p-6">
+              <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
+                Bacarıq xəritəsi
+              </p>
+              <div className="mt-4 h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={data?.skillRadar}>
+                    <PolarGrid stroke="#E4E4E7" />
+                    <PolarAngleAxis dataKey="skill" tick={{ fontSize: 11, fill: '#6B6F76' }} />
+                    <Radar
+                      dataKey="value"
+                      stroke="#2554F6"
+                      fill="#2554F6"
+                      fillOpacity={0.15}
+                      strokeWidth={2}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 rounded-lg border border-border bg-surface p-6 text-center">
+          <button
+            onClick={() => navigate('/interview')}
+            className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent/90"
+          >
+            Yeni müsahibə başlat
           </button>
         </div>
       </div>
