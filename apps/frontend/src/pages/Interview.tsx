@@ -3,11 +3,10 @@ import { useMutation } from '@tanstack/react-query'
 import PageTransition from '../components/PageTransition'
 import ChatBubble from '../components/ChatBubble'
 import TypingIndicator from '../components/TypingIndicator'
-import { startInterview, submitAnswer, completeInterview, type Question, type Report } from '../api/interview'
+import { startInterview, submitAnswer, completeInterview, type Question } from '../api/interview'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { transcribeAudio, synthesizeSpeech } from '../api/speech'
 import MicButton from '../components/MicButton'
-import { useAudioLevel } from '../hooks/useAudioLevel'
 import AvatarOrb from '../components/AvatarOrb'
 import { createEcho } from '../lib/echo'
 import { useNavigate } from 'react-router'
@@ -40,17 +39,12 @@ export default function Interview() {
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
-  const [isCompleted, setIsCompleted] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [report, setReport] = useState<Report | null>(null)
   const [streamingText, setStreamingText] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
-
   const [isAiSpeaking, setIsAiSpeaking] = useState(false)
-  const audioLevel = useAudioLevel(audioRef)
   const { isRecording, startRecording, stopRecording } = useAudioRecorder()
-
   const avatarState: 'idle' | 'speaking' | 'listening' = isRecording
     ? 'listening'
     : isAiSpeaking
@@ -226,28 +220,6 @@ export default function Interview() {
     )
   }
 
-  // --- Tamamlandı ekranı ---
-  if (isCompleted) {
-    return (
-      <PageTransition>
-        <div className="mx-auto max-w-2xl px-8 py-16 text-center">
-          <h1 className="font-display text-2xl font-semibold tracking-tight">
-            Müsahibə tamamlandı
-          </h1>
-          {report ? (
-            <div className="mt-6 text-left">
-              <p className="text-sm text-text-secondary">{report.summary}</p>
-              <pre className="mt-4 rounded-md border border-border bg-surface p-4 text-xs">
-                {JSON.stringify(report, null, 2)}
-              </pre>
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-text-secondary">Qiymətləndirilir...</p>
-          )}
-        </div>
-      </PageTransition>
-    )
-  }
 
   // --- Chat ekranı ---
   return (
