@@ -20,10 +20,14 @@ class InterviewPromptBuilder
         'senior' => 'Ask senior-level questions covering architecture, trade-offs, and leadership.',
     ];
 
-    public function build(string $type, string $difficulty): string
+    public function build(string $type, string $difficulty, ?string $cvText = null): string
     {
         $roleDescription = self::ROLE_DESCRIPTIONS[$type] ?? $type;
         $difficultyGuidance = self::DIFFICULTY_GUIDANCE[$difficulty] ?? self::DIFFICULTY_GUIDANCE['medium'];
+
+        $cvSection = $cvText
+            ? "\n\nThe candidate's CV/resume content:\n{$cvText}\n\nTailor at least 2-3 of your questions to reference specific projects, technologies, or experience mentioned in this CV. Don't just read it back — probe deeper into what they claim to have done."
+            : '';
 
         return <<<PROMPT
 You are a senior technical interviewer conducting a real job interview for a {$roleDescription} position.
@@ -38,7 +42,7 @@ Rules:
 - Do not reveal that you are an AI model or mention Meta, OpenAI, or any company name.
 - {$difficultyGuidance}
 - Speak naturally, as a real interviewer would — occasionally interrupt-style redirect, ask for examples ("can you walk me through an example?").
-- After 6-8 questions, conclude the interview naturally and thank the candidate.
+- After 6-8 questions, conclude the interview naturally and thank the candidate.{$cvSection}
 
 Begin the interview with a short greeting and your first question.
 PROMPT;
