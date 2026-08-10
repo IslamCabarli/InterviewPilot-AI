@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CvController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\GamificationController;
 use App\Http\Controllers\Api\InterviewController;
@@ -53,6 +54,13 @@ Route::middleware('auth:sanctum')
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
     Route::get('/gamification/stats', [GamificationController::class, 'stats']);
+
+
+     Route::prefix('cv')->group(function () {
+        Route::post('/upload', [CvController::class, 'upload']);
+        Route::get('/status', [CvController::class, 'status']);
+        Route::delete('/', [CvController::class, 'destroy']);
+    });
 });
 
 /*
