@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\GamificationController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\SpeechController;
 use Illuminate\Support\Facades\Broadcast;
@@ -51,6 +52,7 @@ Route::middleware('auth:sanctum')
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+    Route::get('/gamification/stats', [GamificationController::class, 'stats']);
 });
 
 /*
