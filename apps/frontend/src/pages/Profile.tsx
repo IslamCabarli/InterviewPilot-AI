@@ -74,11 +74,12 @@ export default function Profile() {
             CV-ni yüklə, AI sualları ona uyğunlaşdırsın.
           </p>
 
-          {cvStatus?.hasCv && !fileName && (
-            <div className="mt-4 flex items-center justify-between rounded-md border border-border bg-bg p-4">
+          {/* Mövcud CV */}
+          {cvStatus?.hasCv && (
+            <div className="mt-4 flex items-center justify-between rounded-md border border-positive/30 bg-positive/5 px-4 py-3">
               <div>
-                <p className="text-sm font-medium text-text-primary">
-                  CV yüklənib
+                <p className="text-sm text-text-primary">
+                  CV yüklənib ✓
                 </p>
 
                 {cvStatus.uploadedAt && (
@@ -92,13 +93,14 @@ export default function Profile() {
                 type="button"
                 onClick={() => deleteMutation.mutate()}
                 disabled={deleteMutation.isPending}
-                className="text-sm text-red-500 hover:text-red-600 disabled:opacity-50"
+                className="text-xs font-medium text-red-500 hover:underline disabled:opacity-50"
               >
                 {deleteMutation.isPending ? 'Silinir...' : 'Sil'}
               </button>
             </div>
           )}
 
+          {/* Upload area */}
           <div
             onDragOver={(e) => {
               e.preventDefault()
@@ -126,19 +128,15 @@ export default function Profile() {
             />
 
             {uploadMutation.isPending ? (
-              <>
-                <p className="text-sm font-medium text-text-primary">
-                  CV yüklənir...
-                </p>
-                <p className="mt-1 text-xs text-text-secondary">
-                  Zəhmət olmasa gözlə
-                </p>
-              </>
+              <p className="text-sm text-text-secondary">
+                Yüklənir...
+              </p>
             ) : fileName ? (
               <>
                 <p className="font-mono text-sm text-text-primary">
                   {fileName}
                 </p>
+
                 <p className="mt-1 text-xs text-text-secondary">
                   Dəyişmək üçün klikləyin
                 </p>
@@ -148,6 +146,7 @@ export default function Profile() {
                 <p className="text-sm font-medium text-text-primary">
                   PDF-i buraya sürüklə
                 </p>
+
                 <p className="mt-1 text-xs text-text-secondary">
                   və ya klikləyib seç
                 </p>
@@ -155,12 +154,14 @@ export default function Profile() {
             )}
           </div>
 
+          {/* Upload success */}
           {uploadMutation.isSuccess && (
-            <p className="mt-3 text-sm text-green-600">
+            <p className="mt-3 text-sm text-positive">
               CV uğurla yükləndi.
             </p>
           )}
 
+          {/* Upload error */}
           {uploadMutation.isError && (
             <p className="mt-3 text-sm text-red-500">
               CV yüklənərkən xəta baş verdi.
