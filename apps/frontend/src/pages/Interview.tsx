@@ -28,8 +28,6 @@ const difficulties = [
   { value: 'senior', label: 'Senior' },
 ]
 
-const [useCv, setUseCv] = useState(false)
-const { data: cvStatus } = useQuery({ queryKey: ['cv-status'], queryFn: getCvStatus })
 
 interface ChatMessage {
   role: 'ai' | 'user'
@@ -56,6 +54,9 @@ export default function Interview() {
       : 'idle'
 
   const [isTranscribing, setIsTranscribing] = useState(false)
+  const [useCv, setUseCv] = useState(false)
+  const { data: cvStatus } = useQuery({ queryKey: ['cv-status'], queryFn: getCvStatus })
+
 
   const handleMicClick = async () => {
     if (isRecording) {
