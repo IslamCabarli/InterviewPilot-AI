@@ -61,7 +61,7 @@ class InterviewController extends Controller
         ]);
 
         $cvText = ($validated['use_cv'] ?? false) ? $request->user()->cv_text : null;
-        $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty'],   $cvText);
+        $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty'], $cvText);
 
 
         $aiResponse = $this->aiProvider->chat($systemPrompt, [
