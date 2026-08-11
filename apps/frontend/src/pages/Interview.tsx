@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import PageTransition from '../components/PageTransition'
 import ChatBubble from '../components/ChatBubble'
 import TypingIndicator from '../components/TypingIndicator'
@@ -10,6 +10,7 @@ import MicButton from '../components/MicButton'
 import AvatarOrb from '../components/AvatarOrb'
 import { createEcho } from '../lib/echo'
 import { useNavigate } from 'react-router'
+import { getCvStatus } from '../api/cv'
 
 const interviewTypes = [
   { value: 'backend', label: 'Backend' },
@@ -26,6 +27,9 @@ const difficulties = [
   { value: 'hard', label: 'Hard' },
   { value: 'senior', label: 'Senior' },
 ]
+
+const [useCv, setUseCv] = useState(false)
+const { data: cvStatus } = useQuery({ queryKey: ['cv-status'], queryFn: getCvStatus })
 
 interface ChatMessage {
   role: 'ai' | 'user'
@@ -120,7 +124,7 @@ export default function Interview() {
   }, [interviewId])
 
   const startMutation = useMutation({
-    mutationFn: () => startInterview(type!, difficulty!),
+    mutationFn: () => startInterview(type!, difficulty!, useCv),
     onSuccess: (data) => {
       setInterviewId(data.interview.id)
       setCurrentQuestionId(data.question.id)
@@ -202,6 +206,25 @@ export default function Interview() {
             </div>
           </div>
 
+          {cvStatus?.hasCv && (
+            <div className="mt-6 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="use-cv"
+                checked={useCv}
+                onChange={(e) => setUseCv(e.target.checked)}
+                className="h-4 w-4 rounded border-border accent-accent"
+              />
+
+              <label
+                htmlFor="use-cv"
+                className="text-sm text-text-primary"
+              >
+                Sualları CV-mə uyğunlaşdır
+              </label>
+            </div>
+          )}
+
           {startMutation.isError && (
             <p className="mt-4 text-sm text-red-500">
               Müsahibəni başlatmaq mümkün olmadı. Ollama-nın işlədiyinə əmin ol.
@@ -234,6 +257,7 @@ export default function Interview() {
               {difficulties.find((d) => d.value === difficulty)?.label} səviyyə
             </p>
           </div>
+
 
           <div className="flex items-center gap-6">
             <AvatarOrb state={avatarState} />
