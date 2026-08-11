@@ -52,10 +52,11 @@ export interface InterviewWithScore extends Interview {
   } | null
 }
 
-export const startInterview = async (type: string, difficulty: string) => {
+export const startInterview = async (type: string, difficulty: string, useCv = false) => {
   const res = await api.post<{ interview: Interview; question: Question }>('/interviews', {
     type,
     difficulty,
+    use_cv: useCv,
   })
   return res.data
 }
