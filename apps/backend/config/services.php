@@ -47,6 +47,10 @@ return [
 
 
     'piper' => [
-    'url' => env('PIPER_URL', 'http://localhost:8002'),
-],
+        'url' => env('PIPER_URL', 'http://localhost:8002'),
+    ],
+
+    'ai_provider' => env('AI_PROVIDER', 'ollama'),
+    'stt_provider' => env('STT_PROVIDER', 'whisper'),
+    'tts_provider' => env('TTS_PROVIDER', 'piper'),
 ];
