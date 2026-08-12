@@ -8,10 +8,11 @@ services:
       POSTGRES_USER: interviewpilot
       POSTGRES_PASSWORD: secret
     ports:
-          # 5433 istifadə olunur, çünki Windows-da lokal Postgres servisi 5432-ni tutur
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - interviewpilot
 
   redis:
     image: redis:7-alpine
@@ -21,7 +22,87 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+    networks:
+      - interviewpilot
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: interviewpilot-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollamadata:/root/.ollama
+    networks:
+      - interviewpilot
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: interviewpilot-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/backend:/var/www/html
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - interviewpilot
+
+  reverb:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: interviewpilot-reverb
+    restart: unless-stopped
+    command: php artisan reverb:start --host=0.0.0.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./apps/backend:/var/www/html
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - interviewpilot
+
+  queue:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: interviewpilot-queue
+    restart: unless-stopped
+    command: php artisan queue:work --tries=3
+    volumes:
+      - ./apps/backend:/var/www/html
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - interviewpilot
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: interviewpilot-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    networks:
+      - interviewpilot
+
+networks:
+  interviewpilot:
+    driver: bridge
 
 volumes:
   pgdata:
   redisdata:
+  ollamadata:
