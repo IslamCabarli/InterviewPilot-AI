@@ -36,10 +36,10 @@ class CvController extends Controller
         }
 
         $file = $request->file('cv');
-        $path = $file->store('cvs/' . $user()->id, 'local');
+        $path = $file->store('cvs/' . $user->id, 'local');
         $text = $this->parser->extractText($file);
 
-        $user()->update([
+        $user->update([
             'cv_path' => $path,
             'cv_text' => $text,
             'cv_uploaded_at' => now(),
