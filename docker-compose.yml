@@ -48,9 +48,11 @@ services:
       - "8000:8000"
     volumes:
       - ./apps/backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
     depends_on:
       - postgres
       - redis
+      - ollama
     networks:
       - interviewpilot
 
@@ -65,9 +67,11 @@ services:
       - "8080:8080"
     volumes:
       - ./apps/backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
     depends_on:
       - postgres
       - redis
+      - ollama
     networks:
       - interviewpilot
 
@@ -80,9 +84,11 @@ services:
     command: php artisan queue:work --tries=3
     volumes:
       - ./apps/backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
     depends_on:
       - postgres
       - redis
+      - ollama
     networks:
       - interviewpilot
 
@@ -108,3 +114,4 @@ volumes:
   pgdata:
   redisdata:
   ollamadata:
+  backend_vendor:
