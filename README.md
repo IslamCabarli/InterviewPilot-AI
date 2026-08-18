@@ -1,320 +1,155 @@
-# InterviewPilot AI — 5-Month Development Roadmap
+# InterviewPilot AI
 
-**Stack:** Laravel 13 (PHP 8.3+) + React 19.2 + TypeScript + Vite
-**Pace:** ~3 hours/day, 5–6 days/week (15–18 hours/week)
-**Duration:** 20 weeks (≈ 4.5–5 months)
+> Practice real technical interviews with an AI interviewer — fully open-source, runs locally.
 
-## Development Strategy
+InterviewPilot AI is a self-hosted mock interview platform. It conducts real-time, voice-enabled
+technical interviews using a local LLM (Ollama), transcribes your spoken answers (Whisper), and
+speaks back to you (Piper TTS) — all running on your own machine, no API keys or cloud costs required.
 
-Build the **MVP first**, then expand with advanced features. This project is ambitious, so trying to implement everything at once will likely lead to burnout and an unfinished product. The core interview workflow should be fully functional before adding "wow" features such as animated avatars, gamification, or company-specific interview modes.
+## Features
 
----
+- 🎙️ Voice-based interviews (speak your answers, AI speaks back)
+- 🤖 Local LLM via Ollama — no OpenAI/Claude API key needed
+- 📊 AI-generated evaluation reports (score breakdown, strengths, weaknesses, recommendations)
+- 📄 CV-aware interviews (upload your CV, questions adapt to your background)
+- 🎮 Lightweight gamification (XP, levels, streaks, badges)
+- 🛠️ Admin panel (Filament) for managing users and interviews
+- 🐳 Docker Compose setup for core services
 
-# MONTH 1 — Foundation (Backend + Frontend Skeleton + Authentication)
+## Tech Stack
 
-## Week 1: Project Setup
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 13, PHP 8.4 |
+| Frontend | React 19.2, TypeScript, Vite, Tailwind CSS |
+| Database | PostgreSQL 16 |
+| Cache/Queue | Redis |
+| LLM | Ollama (llama3.1:8b) |
+| Speech-to-Text | faster-whisper |
+| Text-to-Speech | Piper TTS |
+| Realtime | Laravel Reverb |
+| Admin | Filament 5 |
 
-* Create the monorepo structure (`apps/frontend`, `apps/backend`)
-* Set up Laravel 13 (PHP 8.3+), PostgreSQL, and Redis
-* Set up React 19.2 + Vite + TypeScript + Tailwind CSS
-* Initialize Git repository, README skeleton, `.env.example`, and the first Docker Compose configuration (PostgreSQL + Redis only)
-* Configure ESLint, Prettier, and Laravel Pint
+## Prerequisites
 
-## Week 2: Authentication System
+- Docker & Docker Compose
+- Python 3.11+ (for STT/TTS services, run outside Docker — see below)
+- ~8GB free disk space (for the Ollama model)
 
-* Build Register/Login/Logout APIs using Laravel Sanctum
-* Create Login/Register pages using React Hook Form + Zod validation
-* Manage authentication state with Zustand
-* Configure Axios interceptors for token handling
-* Install and configure Spatie Permission (roles: `user`, `admin`)
+## Installation
 
-## Week 3: Database Schema
+### 1. Clone and start core services
 
-* Create migrations for:
+\`\`\`bash
+git clone https://github.com/IslamCabarli/InterviewPilot-AI.git
+cd InterviewPilot-AI
+cp apps/backend/.env.example apps/backend/.env
+docker compose up -d --build
+\`\`\`
 
-  * Users
-  * Interviews
-  * Questions
-  * Answers
-  * Skills
-  * Reports
-* Define Eloquent model relationships
-* Create database seeders for testing
-* Configure Swagger/OpenAPI and document the first API endpoints
+### 2. Run migrations and seed the database
 
-## Week 4: Dashboard Skeleton & Routing
+\`\`\`bash
+docker compose exec backend php artisan migrate --seed
+\`\`\`
 
-* Configure React Router
-* Create pages:
+> **Important:** seeding is required, not optional — it creates the `user`/`admin` roles that
+> registration depends on. Running `migrate` alone will leave signup broken.
 
-  * Dashboard
-  * Profile
-  * Interview
-  * Settings
-* Integrate TanStack Query for API fetching and caching
-* Build a basic Dashboard UI using static data
-* Add page transition animations with Framer Motion
-* Create the Profile page with a CV upload UI (frontend only)
+### 3. Pull the Ollama model
 
-### Month 1 Outcome
+\`\`\`bash
+docker exec -it interviewpilot-ollama ollama pull llama3.1:8b
+\`\`\`
 
-Users can register, log in, and access a basic dashboard.
+This downloads ~4.9GB and only needs to be done once (stored in a persistent volume).
 
----
+### 4. Set up Speech-to-Text and Text-to-Speech (run locally, not in Docker)
 
-# MONTH 2 — Core AI Interview Flow
+These currently run outside Docker (see [Roadmap](#roadmap)).
 
-## Week 5: AI Provider Abstraction
+**STT (faster-whisper):**
+\`\`\`bash
+cd services/stt
+python -m venv venv
+source venv/bin/activate  # Windows: venv\\Scripts\\activate
+pip install faster-whisper fastapi uvicorn python-multipart
+uvicorn main:app --host 0.0.0.0 --port 8001
+\`\`\`
 
-* Explore Laravel 13 AI SDK and its provider-agnostic architecture
-* Create a Strategy Pattern inside `ai/providers`
-* Define `AiProviderInterface`
+**TTS (Piper):** download a Windows/Linux Piper release and a voice model — see
+[`services/tts/README.md`](services/tts/README.md) for full steps.
 
-  * `sendMessage()`
-  * `streamResponse()`
-* Install Ollama locally
-* Test models such as:
 
-  * Llama 3.1 8B
-  * Qwen
+### 4.5 (Optional) Enable voice input/output
 
-## Week 6: System Prompt Engine
+Voice features require two small services running locally, in addition to
+Docker Compose:
 
-* Generate dynamic system prompts based on interview type:
+- [STT setup guide](services/stt/README.md) — lets you speak your answers
+- [TTS setup guide](services/tts/README.md) — lets the AI speak back
 
-  * Backend
-  * Frontend
-  * HR
-  * etc.
-* Create the `InterviewSession` model
-* Store conversation history
-* Use Laravel Queues to process AI responses asynchronously
+Without these, the app works fine in **text-only mode**.
+### 5. Open the app
 
-## Week 7: Interview API Flow
+- Frontend: http://localhost:5173
+- API docs (Swagger): http://localhost:8000/api/documentation
+- Admin panel: http://localhost:8000/admin (requires an `admin` role — see below)
 
-Build the complete interview pipeline:
+### Creating an admin user
 
-* Start interview
-* Fetch first question
-* Submit answer
-* Generate next question
-* Maintain conversation memory
-* Test the entire workflow using Postman and Swagger
+\`\`\`bash
+docker compose exec backend php artisan tinker
+\`\`\`
+\`\`\`php
+$user = \App\Models\User::where('email', 'you@example.com')->first();
+$user->assignRole('admin');
+\`\`\`
 
-## Week 8: Frontend Interview UI
+## Configuration
 
-* Build the interview chat interface
-* Display AI questions
-* Allow text-based answers (voice comes later)
-* Add typing indicators / streaming effect
-* Let users select:
+Key environment variables (`apps/backend/.env`):
 
-  * Interview type
-  * Difficulty level
+| Variable | Default | Description |
+|---|---|---|
+| `AI_PROVIDER` | `ollama` | LLM provider (extensible — see `AiProviderInterface`) |
+| `OLLAMA_URL` | `http://ollama:11434` | Ollama endpoint (Docker network) |
+| `OLLAMA_MODEL` | `llama3.1:8b` | Model name |
+| `WHISPER_URL` | `http://host.docker.internal:8001` | STT service (runs on host) |
+| `PIPER_URL` | `http://host.docker.internal:8002` | TTS service (runs on host) |
 
-### Month 2 Outcome
+## Screenshots
 
-A fully functional AI-powered text interview system—the core intelligence of the project.
+_(add screenshots here — Dashboard, Interview chat, Report page)_
 
----
+## Known Limitations
 
-# MONTH 3 — Voice & Avatar
+- **Voice input/output requires manual setup.** `docker compose up` alone only
+  gives you text-based interviews. To enable speaking and listening, you also
+  need to run the STT and TTS services locally — see
+  [`services/stt/README.md`](services/stt/README.md) and
+  [`services/tts/README.md`](services/tts/README.md). Dockerizing these is on
+  the roadmap; PRs welcome.
+- Piper TTS currently only supports English voices — there is no Azerbaijani
+  TTS model available yet.
+- Realtime token-by-token streaming (Reverb) is implemented on the backend but
+  not yet wired up on the frontend — interview responses currently arrive as
+  complete messages rather than streaming live.
 
-## Week 9: Speech-to-Text
 
-* Install Whisper.cpp or Faster-Whisper
-* Create an endpoint for audio transcription
-* Implement microphone recording using the MediaRecorder API
+## Roadmap
 
-## Week 10: Text-to-Speech
+- [ ] Coding interview mode (Monaco Editor)
+- [ ] Whiteboard / system-design diagramming
+- [ ] Company-specific interview styles
+- [ ] Full avatar (Live2D / Three.js)
+- [ ] Dockerize STT/TTS
+- [ ] Complete frontend realtime streaming
 
-* Install Kokoro TTS (or Piper)
-* Convert AI responses into speech
-* Add audio playback
-* Display an "AI Speaking" indicator
+## License
 
-## Week 11: Avatar (Initial Version)
+MIT — see [LICENSE](LICENSE)
 
-Start simple:
+## Contributing
 
-* SVG avatar
-* Lottie animation
-* CSS-based avatar
-
-Save advanced solutions (Live2D or Three.js) for future versions.
-
-Features:
-
-* Basic lip-sync based on audio amplitude
-* Listening animation
-* Speaking animation
-
-## Week 12: Realtime Communication
-
-* Install Laravel Reverb (WebSockets)
-* Stream:
-
-  * Speech-to-Text
-  * LLM responses
-  * Text-to-Speech
-* Optimize latency and realtime communication
-
-### Month 3 Outcome
-
-A voice-enabled interview experience with a simple animated AI avatar.
-
----
-
-# MONTH 4 — Reports, Analytics & Gamification
-
-## Week 13: AI Evaluation System
-
-After the interview:
-
-* Send the full transcript to the AI
-* Receive structured JSON feedback
-
-Evaluation categories:
-
-* Technical Skills
-* Communication
-* Confidence
-* Architecture
-* Security
-
-Store:
-
-* Overall score
-* Score breakdown
-* Strengths
-* Weaknesses
-* Transcript
-
-## Week 14: Report UI
-
-Create the report page featuring:
-
-* Overall interview score
-* Radar chart
-* Transcript viewer
-* Recommended learning path (initially static)
-
-## Week 15: Dashboard Analytics
-
-Display:
-
-* Today's practice
-* Average score
-* Completed interviews
-* Weekly and monthly progress charts (Recharts)
-* Skill radar based on real interview data
-
-## Week 16: Lightweight Gamification
-
-Implement:
-
-* XP system
-* Level progression
-* Daily streak tracking
-* 5–6 achievement badges
-
-Keep the first version simple.
-
-### Month 4 Outcome
-
-Users receive detailed AI feedback and can track their long-term improvement.
-
----
-
-# MONTH 5 — CV Matching, Admin Panel & Release
-
-## Week 17: CV & Job Description Matching
-
-* Upload CV (PDF)
-* Extract text on the backend
-* Generate interview questions based on the candidate's CV
-* (Optional) Upload a Job Description to generate role-specific interviews
-
-## Week 18: Minimal Admin Panel
-
-Build an admin dashboard using Filament:
-
-* Users
-* Interviews
-* Reports
-* Basic analytics:
-
-  * Total users
-  * Total interviews
-
-## Week 19: Provider Configuration & Docker
-
-* Configure AI/STT/TTS providers through `.env`
-* Make providers easily switchable
-* Create a complete Docker Compose environment including:
-
-  * Laravel
-  * React
-  * PostgreSQL
-  * Redis
-  * Ollama
-* Perform bug fixing and performance optimization
-
-## Week 20: Documentation & Release
-
-* Write a comprehensive README:
-
-  * Installation
-  * Configuration
-  * Screenshots
-  * Roadmap
-* Create demo videos and GIFs
-* Clean up the GitHub repository
-* Choose the MIT License
-* Publish the **v1.0 Release**
-
-### Month 5 Outcome
-
-A production-ready, fully documented, Dockerized, open-source AI interview platform that can be easily installed and extended by developers.
-
-
-
-
-## Text-to-Speech Setup (Piper)
-
-InterviewPilot AI uses **Piper TTS** for local text-to-speech synthesis.
-
-### 1. Download Piper
-
-Download the latest Windows release from the Piper GitHub releases page and extract it to:
-
-```text
-services/tts/piper/
-```
-
-### 2. Download a voice model
-
-Download an English voice model (for example, `en_US-amy-medium`) and place these files in:
-
-```text
-services/tts/piper/voices/
-```
-
-Required files:
-
-```text
-en_US-amy-medium.onnx
-en_US-amy-medium.onnx.json
-```
-
-> Voice models are not included in this repository to keep the project lightweight.
-
-### 3. Test Piper
-
-Run the following command inside `services/tts/piper`:
-
-```powershell
-echo "Hello, this is a test." | .\piper.exe --model voices\en_US-amy-medium.onnx --output_file test.wav
-```
-
-If `test.wav` is generated and plays correctly, Piper is configured successfully.
+Contributions are welcome. Please open an issue before submitting large PRs.
