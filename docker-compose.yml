@@ -29,6 +29,8 @@ services:
     image: ollama/ollama:latest
     container_name: interviewpilot-ollama
     restart: unless-stopped
+    environment:
+      - OLLAMA_CONTEXT_LENGTH=2048
     ports:
       - "11434:11434"
     volumes:
