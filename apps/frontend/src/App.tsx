@@ -8,6 +8,7 @@ import Interview from './pages/Interview'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import InterviewReport from './pages/InterviewReport'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
@@ -26,6 +27,8 @@ export default function App() {
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
