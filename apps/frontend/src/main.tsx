@@ -6,13 +6,16 @@ import { queryClient } from './app/queryClient'
 import { AuthProvider } from './auth/AuthProvider'
 import App from './App'
 import './index.css'
+import ErrorBoundary from './components/ErrorBoundary.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
+          <ErrorBoundary>
           <App />
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
