@@ -144,6 +144,22 @@ Key environment variables (`apps/backend/.env`):
   complete messages rather than streaming live.
 
 
+## ⚠️ Production Deployment Note
+
+This project is configured for local/development use by default
+(`APP_DEBUG=true` in `.env.example`). **If you deploy this publicly, you must
+set:**
+
+\`\`\`env
+APP_DEBUG=false
+APP_ENV=production
+\`\`\`
+
+Leaving `APP_DEBUG=true` in a public deployment exposes internal file paths,
+stack traces, and framework details in API error responses — a real security
+risk, not just a cosmetic one.
+
+
 ## Roadmap
 
 - [ ] Coding interview mode (Monaco Editor)

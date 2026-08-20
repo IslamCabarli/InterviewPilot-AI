@@ -18,14 +18,14 @@ const interviewTypes = [
   { value: 'fullstack', label: 'Full Stack' },
   { value: 'devops', label: 'DevOps' },
   { value: 'system-design', label: 'System Design' },
-  { value: 'hr', label: 'HR' },
+  { value: 'hr', label: 'HR' }
 ]
 
 const difficulties = [
   { value: 'easy', label: 'Easy' },
   { value: 'medium', label: 'Medium' },
   { value: 'hard', label: 'Hard' },
-  { value: 'senior', label: 'Senior' },
+  { value: 'senior', label: 'Senior' }
 ]
 
 
@@ -92,10 +92,12 @@ export default function Interview() {
 
         if (audioRef.current) {
           audioRef.current.src = audioUrl
-          audioRef.current.play().catch(() => { })
+          audioRef.current.play().catch(() => {
+          })
         }
       })
-      .catch(() => { })
+      .catch(() => {
+      })
       .finally(() => {
         if (url) {
           setTimeout(() => URL.revokeObjectURL(url!), 10000)
@@ -132,7 +134,7 @@ export default function Interview() {
 
       setMessages([{ role: 'ai', content: data.question.content }])
 
-    },
+    }
   })
 
   const answerMutation = useMutation({
@@ -141,7 +143,7 @@ export default function Interview() {
       setCurrentQuestionId(data.question.id)
       setMessages((prev) => [...prev, { role: 'ai', content: data.question.content }])
       setStreamingText('')
-    },
+    }
   })
 
   const navigate = useNavigate()
@@ -149,7 +151,7 @@ export default function Interview() {
     mutationFn: () => completeInterview(interviewId!),
     onSuccess: () => {
       navigate(`/interviews/${interviewId}/report`)
-    },
+    }
   })
 
   const handleSend = () => {
@@ -179,7 +181,7 @@ export default function Interview() {
                   className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${type === t.value
                     ? 'border-accent bg-accent text-white'
                     : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
-                    }`}
+                  }`}
                 >
                   {t.label}
                 </button>
@@ -199,7 +201,7 @@ export default function Interview() {
                   className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${difficulty === d.value
                     ? 'border-accent bg-accent text-white'
                     : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
-                    }`}
+                  }`}
                 >
                   {d.label}
                 </button>
@@ -310,10 +312,10 @@ export default function Interview() {
         </div>
       </div>
       <audio ref={audioRef}
-        className="hidden"
-        onPlay={() => setIsAiSpeaking(true)}
-        onPause={() => setIsAiSpeaking(false)}
-        onEnded={() => setIsAiSpeaking(false)} />
+             className="hidden"
+             onPlay={() => setIsAiSpeaking(true)}
+             onPause={() => setIsAiSpeaking(false)}
+             onEnded={() => setIsAiSpeaking(false)} />
     </PageTransition>
   )
 }
