@@ -26,4 +26,19 @@ class AuthTest extends TestCase
             'email' => 'islam@example.com',
         ]);
     }
+
+    public function test_user_can_login(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'islam@example.com',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'islam@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(200);
+    }
 }
