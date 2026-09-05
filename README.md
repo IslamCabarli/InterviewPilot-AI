@@ -159,6 +159,20 @@ Leaving `APP_DEBUG=true` in a public deployment exposes internal file paths,
 stack traces, and framework details in API error responses — a real security
 risk, not just a cosmetic one.
 
+## Security Notes for Production Deployment
+
+This project defaults to development-friendly settings. Before deploying
+publicly (beyond local self-hosting), you should:
+
+- Set `APP_DEBUG=false` in `.env`
+- Generate fresh `APP_KEY`, `REVERB_APP_KEY`/`REVERB_APP_SECRET`
+- Change the default PostgreSQL password in `docker-compose.yml`
+- Restrict `allowed_origins` in `config/reverb.php` to your actual domain
+- Do not expose PostgreSQL (5433) or Redis (6379) ports to the public internet
+- Add rate limiting to auth endpoints (see `routes/api.php`)
+- Serve over HTTPS (required for microphone access in browsers, and for
+  secure cookie/token handling)
+
 
 ## Roadmap
 
