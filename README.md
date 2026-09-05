@@ -120,14 +120,17 @@ Key environment variables (`apps/backend/.env`):
 
 ## Screenshots
 
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
 
-![alt text](image.png)
+### Interview Chat
+![Interview Chat](docs/screenshots/interview-chat.png)
 
-![alt text](image-1.png)
+### Evaluation Report
+![Report](docs/screenshots/report.png)
 
-![alt text](image-2.png)
-
-![alt text](image-3.png)
+### Admin Panel
+![Admin Panel](docs/screenshots/admin-panel.png)
 
 ## Known Limitations
 
@@ -158,6 +161,30 @@ APP_ENV=production
 Leaving `APP_DEBUG=true` in a public deployment exposes internal file paths,
 stack traces, and framework details in API error responses — a real security
 risk, not just a cosmetic one.
+
+
+## GPU Acceleration (optional, NVIDIA only)
+
+If you have an NVIDIA GPU, Ollama can run significantly faster using it.
+
+**Requirements:**
+- NVIDIA GPU with up-to-date drivers
+- Docker Desktop with WSL2 backend (GPU support is built-in on Windows)
+- On native Linux, you'll additionally need the
+  [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+
+**Enable GPU mode:**
+\`\`\`bash
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+\`\`\`
+
+Without an NVIDIA GPU, use the standard `docker compose up -d` — Ollama will
+run on CPU, which works but responds more slowly.
+
+> Note: on GPUs with limited VRAM (6GB or less), the model may partially run
+> on CPU due to memory constraints — this is normal and still faster than
+> CPU-only mode.
+
 
 ## Security Notes for Production Deployment
 
