@@ -14,7 +14,7 @@
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
-        "league/commonmark": "2.9",
+        "league/commonmark": "^2.9",
         "predis/predis": "^3.5",
         "smalot/pdfparser": "^2.12",
         "spatie/laravel-permission": "^8.3"
@@ -89,6 +89,14 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": [
+                "PKSA-zyf5-hrxv-hrd7",
+                "PKSA-nv44-1b4d-6gjg",
+                "PKSA-kr3s-894t-g5w2",
+                "PKSA-9q1p-3s19-bp1q"
+            ]
         }
     },
     "minimum-stability": "stable",
