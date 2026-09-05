@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class SpeechController extends Controller
-{   
+{
     public function __construct(
         private readonly SpeechToTextInterface $stt,
         private readonly TextToSpeechInterface $tts,
@@ -27,7 +27,7 @@ class SpeechController extends Controller
     public function transcribe(Request $request)
     {
         $request->validate([
-            'audio' => ['required', 'file', 'max:20480'], // max 20MB
+            'audio' => ['required', 'file','mimetypes:audio/webm,audio/wav,audio/mpeg', 'max:20480'], // max 20MB
         ]);
 
         $text = $this->stt->transcribe($request->file('audio'));
