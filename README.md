@@ -174,6 +174,16 @@ publicly (beyond local self-hosting), you should:
   secure cookie/token handling)
 
 
+## Known Issues
+
+- `league/commonmark` (a transitive dependency pulled in by Laravel core)
+  currently has open security advisories with no patched stable version
+  available yet upstream. This package is not used to render any
+  user-supplied content in this project, so practical exploitability is
+  minimal. Acknowledged and suppressed in `composer.json`
+  (`config.audit.ignore`) — will be resolved via `composer update` once
+  upstream publishes a fix.
+
 ## Roadmap
 
 - [ ] Coding interview mode (Monaco Editor)
