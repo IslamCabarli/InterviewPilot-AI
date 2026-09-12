@@ -40,27 +40,27 @@ speaks back to you (Piper TTS) — all running on your own machine, no API keys 
 
 ### 1. Clone and start core services
 
-\`\`\`bash
+`
 git clone https://github.com/IslamCabarli/InterviewPilot-AI.git
 cd InterviewPilot-AI
 cp apps/backend/.env.example apps/backend/.env
 docker compose up -d --build
-\`\`\`
+`
 
 ### 2. Run migrations and seed the database
 
-\`\`\`bash
+`
 docker compose exec backend php artisan migrate --seed
-\`\`\`
+`
 
 > **Important:** seeding is required, not optional — it creates the `user`/`admin` roles that
 > registration depends on. Running `migrate` alone will leave signup broken.
 
 ### 3. Pull the Ollama model
 
-\`\`\`bash
+`
 docker exec -it interviewpilot-ollama ollama pull llama3.1:8b
-\`\`\`
+`
 
 This downloads ~4.9GB and only needs to be done once (stored in a persistent volume).
 
@@ -69,13 +69,13 @@ This downloads ~4.9GB and only needs to be done once (stored in a persistent vol
 These currently run outside Docker (see [Roadmap](#roadmap)).
 
 **STT (faster-whisper):**
-\`\`\`bash
+`
 cd services/stt
 python -m venv venv
 source venv/bin/activate  # Windows: venv\\Scripts\\activate
 pip install faster-whisper fastapi uvicorn python-multipart
 uvicorn main:app --host 0.0.0.0 --port 8001
-\`\`\`
+`
 
 **TTS (Piper):** download a Windows/Linux Piper release and a voice model — see
 [`services/tts/README.md`](services/tts/README.md) for full steps.
@@ -98,9 +98,9 @@ Without these, the app works fine in **text-only mode**.
 
 ### Creating an admin user
 
-\`\`\`bash
+`
 docker compose exec backend php artisan tinker
-\`\`\`
+`
 \`\`\`php
 $user = \App\Models\User::where('email', 'you@example.com')->first();
 $user->assignRole('admin');
