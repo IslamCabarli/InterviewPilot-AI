@@ -132,6 +132,18 @@ export default function Dashboard() {
           />
         </div>
 
+        {activeInterview && (
+          <div className="mt-6 flex items-center justify-between rounded-lg border border-accent/30 bg-accent/5 p-4">
+            <p className="text-sm text-text-primary">Bitirilməmiş bir müsahibən var.</p>
+            <button
+              onClick={() => navigate('/interview')}
+              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90"
+            >
+              Davam et
+            </button>
+          </div>
+        )}
+
         {/* Empty state */}
         {!isLoading && !hasData && (
           <div className="mt-8 rounded-lg border border-border bg-surface p-8 text-center">
