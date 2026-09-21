@@ -19,6 +19,10 @@ import PageTransition from '../components/PageTransition'
 import { getDashboardStats } from '../api/dashboard'
 import { useNavigate } from 'react-router'
 
+const { data: activeInterview } = useQuery({
+  queryKey: ['active-interview'],
+  queryFn: getActiveInterview,
+})
 function StatCard({
   label,
   value,
