@@ -189,6 +189,15 @@ export default function Interview() {
   }, [])
 
 
+  if (isRestoring) {
+    return (
+      <PageTransition>
+        <div className="flex min-h-screen items-center justify-center bg-bg">
+          <p className="text-sm text-text-secondary">Yoxlanılır...</p>
+        </div>
+      </PageTransition>
+    )
+  }
   // --- Setup ekranı ---
   if (!interviewId) {
     return (
