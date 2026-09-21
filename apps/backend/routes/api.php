@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')
     ->prefix('interviews')
     ->group(function () {
         Route::post('/', [InterviewController::class, 'start']);
+        Route::get('/active', [InterviewController::class, 'active']);
         Route::get('/{interview}', [InterviewController::class, 'show']);
         Route::post('/{interview}/answer', [InterviewController::class, 'answer']);
         Route::post('/{interview}/complete', [InterviewController::class, 'complete']);
