@@ -69,8 +69,15 @@ export const submitAnswer = async (interviewId: number, questionId: number, cont
   return res.data
 }
 
+
+
 export const getInterview = async (interviewId: number) => {
   const res = await api.get<{ interview: Interview }>(`/interviews/${interviewId}`)
+  return res.data.interview
+}
+
+export const getActiveInterview = async () => {
+  const res = await api.get<{ interview: Interview | null }>('/interviews/active')
   return res.data.interview
 }
 
