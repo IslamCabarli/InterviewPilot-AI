@@ -160,6 +160,34 @@ export default function Interview() {
     answerMutation.mutate(input)
     setInput('')
   }
+  const [isRestoring, setIsRestoring] = useState(true)
+
+  useEffect(() => {
+    getActiveInterview().then((activeInterview) => {
+      if (activeInterview) {
+        setInterviewId(activeInterview.id)
+        setType(activeInterview.type)
+        setDifficulty(activeInterview.difficulty)
+
+        const restoredMessages: ChatMessage[] = []
+        let lastQuestionId: number | null = null
+
+        activeInterview.questions.forEach((q) => {
+          restoredMessages.push({ role: 'ai', content: q.content })
+          if (q.answer) {
+            restoredMessages.push({ role: 'user', content: q.answer.content })
+          } else {
+            lastQuestionId = q.id
+          }
+        })
+
+        setMessages(restoredMessages)
+        setCurrentQuestionId(lastQuestionId ?? activeInterview.questions.at(-1)?.id ?? null)
+      }
+      setIsRestoring(false)
+    }).catch(() => setIsRestoring(false))
+  }, [])
+
 
   // --- Setup ekranı ---
   if (!interviewId) {
