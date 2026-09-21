@@ -224,4 +224,24 @@ class InterviewController extends Controller
             'report' => $interview->report,
         ]);
     }
+
+    #[OA\Get(
+        path: '/interviews/active',
+        summary: 'Davam edən (bitirilməmiş) müsahibəni tap',
+        tags: ['Interviews'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Aktiv müsahibə (varsa)'),
+        ]
+    )]
+    public function active(Request $request)
+    {
+        $interview = Interview::where('user_id', $request->user()->id)
+            ->where('status', 'in_progress')
+            ->with('questions.answer')
+            ->latest()
+            ->first();
+
+        return response()->json(['interview' => $interview]);
+    }
 }
