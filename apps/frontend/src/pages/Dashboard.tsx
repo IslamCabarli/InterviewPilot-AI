@@ -20,10 +20,7 @@ import { getDashboardStats } from '../api/dashboard'
 import { useNavigate } from 'react-router'
 import { getActiveInterview } from '../api/interview'
 
-const { data: activeInterview } = useQuery({
-  queryKey: ['active-interview'],
-  queryFn: getActiveInterview,
-})
+
 function StatCard({
   label,
   value,
@@ -52,6 +49,8 @@ function StatCard({
 }
 
 export default function Dashboard() {
+
+
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -63,6 +62,11 @@ export default function Dashboard() {
   const { data: gamification } = useQuery({
     queryKey: ['gamification-stats'],
     queryFn: getGamificationStats,
+  })
+
+  const { data: activeInterview } = useQuery({
+    queryKey: ['active-interview'],
+    queryFn: getActiveInterview,
   })
 
   const hasData = (data?.completedInterviews ?? 0) > 0
