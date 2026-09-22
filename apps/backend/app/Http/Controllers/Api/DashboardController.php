@@ -42,7 +42,6 @@ class DashboardController extends Controller
         $completedInterviews = Interview::where('user_id', $userId)
             ->where('status', 'completed')
             ->count();
-
         $weeklyProgress = $this->weeklyProgress($userId);
 
         $skillRadar = $this->skillRadar($userId);

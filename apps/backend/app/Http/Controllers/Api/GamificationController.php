@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Interview;
+use App\Services\StreakCalculator;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class GamificationController extends Controller
 {
+
+    public function __construct(
+        private readonly StreakCalculator $streakCalculator,
+    ) {}
     private const XP_PER_LEVEL = 200;
 
     #[OA\Get(
@@ -34,7 +39,7 @@ class GamificationController extends Controller
         $xpIntoLevel = $totalXp % self::XP_PER_LEVEL;
         $xpForNextLevel = self::XP_PER_LEVEL;
 
-        $streak = $this->calculateStreak($userId);
+        $streak = $this->streakCalculator->calculate($userId);
         $bestScore = (int) ($completed->max('overall_score') ?? 0);
         $completedCount = $completed->count();
 
@@ -87,31 +92,5 @@ class GamificationController extends Controller
         ]);
     }
 
-    private function calculateStreak(int $userId): int
-    {
-        $dates = Interview::where('user_id', $userId)
-            ->where('status', 'completed')
-            ->selectRaw('DISTINCT DATE(completed_at) as day')
-            ->orderByDesc('day')
-            ->pluck('day')
-            ->map(fn ($d) => (string) $d);
 
-        if ($dates->isEmpty()) {
-            return 0;
-        }
-
-        $streak = 0;
-        $cursor = today();
-
-        foreach ($dates as $day) {
-            if ($day === $cursor->toDateString()) {
-                $streak++;
-                $cursor = $cursor->subDay();
-            } else {
-                break;
-            }
-        }
-
-        return $streak;
-    }
 }
