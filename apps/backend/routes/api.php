@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
     Route::get('/gamification/stats', [GamificationController::class, 'stats']);
+    Route::get('/dashboard/recent-interviews', [DashboardController::class, 'recentInterviews']);
 
 
      Route::prefix('cv')->group(function () {
