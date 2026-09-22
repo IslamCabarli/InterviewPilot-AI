@@ -56,6 +56,26 @@ class DashboardController extends Controller
         ]);
     }
 
+    #[OA\Get(
+        path: '/dashboard/recent-interviews',
+        summary: 'Son müsahibələr siyahısı',
+        tags: ['Dashboard'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Son müsahibələr'),
+        ]
+    )]
+    public function recentInterviews(Request $request)
+    {
+        $interviews = Interview::where('user_id', $request->user()->id)
+            ->where('status', 'completed')
+            ->latest('completed_at')
+            ->limit(5)
+            ->get(['id', 'type', 'difficulty', 'overall_score', 'completed_at']);
+
+        return response()->json(['interviews' => $interviews]);
+    }
+
     /**
      * Son 7 günün hər biri üçün ortalama bal (məlumat yoxdursa null).
      */
@@ -124,4 +144,6 @@ class DashboardController extends Controller
 
         return $result;
     }
+
+
 }
