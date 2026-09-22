@@ -16,7 +16,7 @@ import { useAuth } from '../auth/useAuth'
 import { getGamificationStats } from '../api/gamification'
 import BadgeCard from '../components/BadgeCard'
 import PageTransition from '../components/PageTransition'
-import { getDashboardStats } from '../api/dashboard'
+import { getDashboardStats, getRecentInterviews  } from '../api/dashboard'
 import { useNavigate } from 'react-router'
 import { getActiveInterview } from '../api/interview'
 
@@ -62,6 +62,11 @@ export default function Dashboard() {
   const { data: gamification } = useQuery({
     queryKey: ['gamification-stats'],
     queryFn: getGamificationStats,
+  })
+
+  const { data: recentInterviews } = useQuery({
+    queryKey: ['recent-interviews'],
+    queryFn: getRecentInterviews,
   })
 
   const { data: activeInterview } = useQuery({
@@ -279,7 +284,35 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-
+        {recentInterviews && recentInterviews.length > 0 && (
+          <div className="mt-6 rounded-lg border border-border bg-surface p-6">
+            <p className="mb-4 text-xs font-medium uppercase tracking-wide text-text-secondary">
+              Son müsahibələr
+            </p>
+            <div className="space-y-2">
+              {recentInterviews.map((interview) => (
+                <button
+                  key={interview.id}
+                  onClick={() => navigate(`/interviews/${interview.id}/report`)}
+                  className="flex w-full items-center justify-between rounded-md border border-border px-4 py-3 text-left hover:border-accent"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">
+                      {interview.type} · {interview.difficulty}
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {new Date(interview.completed_at).toLocaleDateString('az-AZ')}
+                    </p>
+                  </div>
+                  <p className="font-mono text-lg font-medium text-text-primary">
+                    {interview.overall_score ?? '—'}
+                    <span className="text-xs text-text-secondary">/100</span>
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {/* New interview */}
         <div className="mt-6 rounded-lg border border-border bg-surface p-6 text-center">
           <button
