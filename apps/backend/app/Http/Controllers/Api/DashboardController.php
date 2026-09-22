@@ -7,9 +7,13 @@ use App\Models\Interview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
+use App\Services\StreakCalculator;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly StreakCalculator $streakCalculator,
+    ) {}
     #[OA\Get(
         path: '/dashboard/stats',
         summary: 'Dashboard statistikası',
@@ -33,12 +37,11 @@ class DashboardController extends Controller
                 ->whereNotNull('overall_score')
                 ->avg('overall_score') ?? 0
         );
+        $weeklyStreak = $this->streakCalculator->calculate($userId);
 
         $completedInterviews = Interview::where('user_id', $userId)
             ->where('status', 'completed')
             ->count();
-
-        $weeklyStreak = $this->calculateStreak($userId);
 
         $weeklyProgress = $this->weeklyProgress($userId);
 
@@ -52,37 +55,6 @@ class DashboardController extends Controller
             'weeklyProgress' => $weeklyProgress,
             'skillRadar' => $skillRadar,
         ]);
-    }
-
-    /**
-     * Ardıcıl neçə gündür istifadəçinin ən azı bir tamamlanmış müsahibəsi var.
-     */
-    private function calculateStreak(int $userId): int
-    {
-        $dates = Interview::where('user_id', $userId)
-            ->where('status', 'completed')
-            ->selectRaw('DISTINCT DATE(completed_at) as day')
-            ->orderByDesc('day')
-            ->pluck('day')
-            ->map(fn ($d) => (string) $d);
-
-        if ($dates->isEmpty()) {
-            return 0;
-        }
-
-        $streak = 0;
-        $cursor = today();
-
-        foreach ($dates as $day) {
-            if ($day === $cursor->toDateString()) {
-                $streak++;
-                $cursor = $cursor->subDay();
-            } else {
-                break;
-            }
-        }
-
-        return $streak;
     }
 
     /**
