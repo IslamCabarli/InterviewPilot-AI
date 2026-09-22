@@ -35,6 +35,7 @@ interface ChatMessage {
 }
 
 export default function Interview() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [type, setType] = useState<string | null>(null)
   const [difficulty, setDifficulty] = useState<string | null>(null)
   const [interviewId, setInterviewId] = useState<number | null>(null)
@@ -143,7 +144,10 @@ export default function Interview() {
       setCurrentQuestionId(data.question.id)
       setMessages((prev) => [...prev, { role: 'ai', content: data.question.content }])
       setStreamingText('')
-    }
+    },
+    onError: () => {
+      setErrorMessage('Cavab göndərilə bilmədi. Yenidən cəhd et.')
+    },
   })
 
   const navigate = useNavigate()
@@ -151,7 +155,10 @@ export default function Interview() {
     mutationFn: () => completeInterview(interviewId!),
     onSuccess: () => {
       navigate(`/interviews/${interviewId}/report`)
-    }
+    },
+    onError: () => {
+      setErrorMessage('Müsahibəni bitirmək mümkün olmadı. Yenidən cəhd et.')
+    },
   })
 
   const handleSend = () => {
@@ -320,6 +327,9 @@ export default function Interview() {
           <div ref={bottomRef} />
         </div>
 
+        {errorMessage && (
+          <p className="mb-2 text-sm text-red-500">{errorMessage}</p>
+        )}
         <div className="flex gap-2 border-t border-border pt-4">
           <MicButton
             isRecording={isRecording}

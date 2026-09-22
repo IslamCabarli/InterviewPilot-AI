@@ -10,11 +10,12 @@ use OpenApi\Attributes as OA;
 
 class GamificationController extends Controller
 {
+    private const XP_PER_LEVEL = 200;
 
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
     ) {}
-    private const XP_PER_LEVEL = 200;
+
 
     #[OA\Get(
         path: '/gamification/stats',
