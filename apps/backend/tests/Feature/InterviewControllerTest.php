@@ -233,5 +233,4 @@ class InterviewControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('interview', null);
     }
-
 }
