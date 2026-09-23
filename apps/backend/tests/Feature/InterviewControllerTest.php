@@ -120,6 +120,31 @@ class InterviewControllerTest extends TestCase
             'order' => 2,
         ]);
     }
+
+    public function test_user_cannot_answer_another_users_interview(): void
+    {
+        $owner = $this->authenticatedUser();
+        $intruder = $this->authenticatedUser();
+
+        $interview = Interview::create([
+            'user_id' => $owner->id,
+            'type' => 'backend',
+            'difficulty' => 'medium',
+            'status' => 'in_progress',
+        ]);
+        $question = Question::create([
+            'interview_id' => $interview->id,
+            'content' => 'İlk sual',
+            'order' => 1,
+        ]);
+
+        $response = $this->actingAs($intruder, 'sanctum')
+            ->postJson("/api/interviews/{$interview->id}/answer", [
+                'question_id' => $question->id,
+                'content' => 'İcazəsiz cavab',
+            ]);
+
+        $response->assertStatus(403);
+    }
+
 }
-
-
