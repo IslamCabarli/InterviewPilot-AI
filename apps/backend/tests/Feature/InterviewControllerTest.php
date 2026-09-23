@@ -147,4 +147,59 @@ class InterviewControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_completing_an_interview_generates_a_report(): void
+    {
+        $this->app->bind(AiProviderInterface::class, fn () => new FakeAiProvider(
+            json_encode([
+                'overall_score' => 78,
+                'score_breakdown' => [
+                    'technical' => 20,
+                    'communication' => 18,
+                    'confidence' => 12,
+                    'problem_solving' => 16,
+                    'best_practices' => 12,
+                ],
+                'summary' => 'Yaxşı ümumi performans.',
+                'weak_points' => ['Error handling'],
+                'strong_points' => ['Clean code'],
+                'recommended_topics' => ['Exception Handling'],
+            ])
+        ));
+
+        $user = $this->authenticatedUser();
+        $interview = Interview::create([
+            'user_id' => $user->id,
+            'type' => 'backend',
+            'difficulty' => 'medium',
+            'status' => 'in_progress',
+        ]);
+        $question = Question::create([
+            'interview_id' => $interview->id,
+            'content' => 'Sual',
+            'order' => 1,
+        ]);
+        Answer::create([
+            'question_id' => $question->id,
+            'content' => 'Cavab',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/interviews/{$interview->id}/complete");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('interview.status', 'completed')
+            ->assertJsonPath('report.summary', 'Yaxşı ümumi performans.');
+
+        $this->assertDatabaseHas('interviews', [
+            'id' => $interview->id,
+            'status' => 'completed',
+            'overall_score' => 78,
+        ]);
+
+        $this->assertDatabaseHas('reports', [
+            'interview_id' => $interview->id,
+            'summary' => 'Yaxşı ümumi performans.',
+        ]);
+    }
+
 }
