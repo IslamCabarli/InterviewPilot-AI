@@ -62,4 +62,27 @@ class InterviewControllerTest extends TestCase
             'order' => 1,
         ]);
     }
+
+    public function test_guest_cannot_start_an_interview(): void
+    {
+        $response = $this->postJson('/api/interviews', [
+            'type' => 'backend',
+            'difficulty' => 'medium',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_starting_an_interview_requires_valid_difficulty(): void
+    {
+        $user = $this->authenticatedUser();
+
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/interviews', [
+            'type' => 'backend',
+            'difficulty' => 'impossible', // enum-a uyğun deyil
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['difficulty']);
+    }
 }
