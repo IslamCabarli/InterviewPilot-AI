@@ -202,4 +202,26 @@ class InterviewControllerTest extends TestCase
         ]);
     }
 
+    public function test_active_endpoint_returns_in_progress_interview(): void
+    {
+        $user = $this->authenticatedUser();
+        Interview::create([
+            'user_id' => $user->id,
+            'type' => 'frontend',
+            'difficulty' => 'easy',
+            'status' => 'completed',
+        ]);
+        $active = Interview::create([
+            'user_id' => $user->id,
+            'type' => 'backend',
+            'difficulty' => 'medium',
+            'status' => 'in_progress',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')->getJson('/api/interviews/active');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('interview.id', $active->id);
+    }
+
 }
