@@ -85,4 +85,41 @@ class InterviewControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['difficulty']);
     }
+
+    public function test_user_can_submit_an_answer_and_receive_next_question(): void
+    {
+        $user = $this->authenticatedUser();
+        $interview = Interview::create([
+            'user_id' => $user->id,
+            'type' => 'backend',
+            'difficulty' => 'medium',
+            'status' => 'in_progress',
+        ]);
+        $question = Question::create([
+            'interview_id' => $interview->id,
+            'content' => 'İlk sual',
+            'order' => 1,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/interviews/{$interview->id}/answer", [
+                'question_id' => $question->id,
+                'content' => 'Mənim cavabım budur.',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['question' => ['id', 'content', 'order']]);
+
+        $this->assertDatabaseHas('answers', [
+            'question_id' => $question->id,
+            'content' => 'Mənim cavabım budur.',
+        ]);
+
+        $this->assertDatabaseHas('questions', [
+            'interview_id' => $interview->id,
+            'order' => 2,
+        ]);
+    }
 }
+
+
