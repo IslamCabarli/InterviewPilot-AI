@@ -224,4 +224,14 @@ class InterviewControllerTest extends TestCase
             ->assertJsonPath('interview.id', $active->id);
     }
 
+    public function test_active_endpoint_returns_null_when_no_active_interview(): void
+    {
+        $user = $this->authenticatedUser();
+
+        $response = $this->actingAs($user, 'sanctum')->getJson('/api/interviews/active');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('interview', null);
+    }
+
 }
