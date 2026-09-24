@@ -51,4 +51,17 @@ class AuthControllerTest extends TestCase
         $this->assertTrue($user->hasRole('user'));
         $this->assertFalse($user->hasRole('admin'));
     }
+
+    public function test_registration_requires_matching_password_confirmation(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Test',
+            'email' => 'test2@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'different',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
 }
