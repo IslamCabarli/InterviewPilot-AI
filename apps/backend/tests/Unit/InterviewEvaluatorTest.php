@@ -123,4 +123,19 @@ class InterviewEvaluatorTest extends TestCase
         $this->assertNull($interview->fresh()->overall_score);
     }
 
+
+    public function test_handles_empty_response(): void
+    {
+        Log::shouldReceive('warning')->once();
+
+        $evaluator = new InterviewEvaluator(
+            new FakeAiProvider(''),
+            new EvaluationPromptBuilder(),
+        );
+
+        $interview = $this->makeInterviewWithTranscript();
+        $report = $evaluator->evaluate($interview);
+
+        $this->assertSame('Qiymətləndirmə tam alınmadı.', $report->summary);
+    }
 }
