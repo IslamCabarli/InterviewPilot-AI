@@ -66,4 +66,19 @@
 
          $this->assertSame(1, $calculator->calculate($user->id));
      }
+
+     public function test_streak_is_zero_if_last_activity_was_not_today(): void
+     {
+         $user = User::factory()->create();
+
+         Interview::factory()->create([
+             'user_id' => $user->id,
+             'status' => 'completed',
+             'completed_at' => today()->subDays(2),
+         ]);
+
+         $calculator = new StreakCalculator();
+
+         $this->assertSame(0, $calculator->calculate($user->id));
+     }
  }
