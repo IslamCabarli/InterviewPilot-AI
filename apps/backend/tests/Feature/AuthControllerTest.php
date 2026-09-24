@@ -120,4 +120,10 @@ class AuthControllerTest extends TestCase
                 ->assertJsonPath('id', $user->id)
                 ->assertJsonPath('name', $user->email);
     }
+
+    public function test_unauthenticated_user_cannot_fetch_profile(): void
+    {
+        $response = postJson('/api/auth/me');
+        $response->assertStatus(401);
+    }
 }
