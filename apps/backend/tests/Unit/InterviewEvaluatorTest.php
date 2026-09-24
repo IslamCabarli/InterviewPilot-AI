@@ -82,5 +82,27 @@ class InterviewEvaluatorTest extends TestCase
         $this->assertSame(70, $interview->fresh()->overall_score);
     }
 
+    public function test_parses_json_with_preamble_text(): void
+    {
+        // Bəzi kiçik modellər JSON-dan əvvəl izahat mətni əlavə edir
+        $rawJson = 'Here is my evaluation: ' . json_encode([
+                'overall_score' => 55,
+                'score_breakdown' => ['technical' => 15, 'communication' => 10, 'confidence' => 10, 'problem_solving' => 10, 'best_practices' => 10],
+                'summary' => 'Təkmilləşdirməyə ehtiyac var.',
+                'weak_points' => ['Communication'],
+                'strong_points' => [],
+                'recommended_topics' => [],
+            ]);
+
+        $evaluator = new InterviewEvaluator(
+            new FakeAiProvider($rawJson),
+            new EvaluationPromptBuilder(),
+        );
+
+        $interview = $this->makeInterviewWithTranscript();
+        $report = $evaluator->evaluate($interview);
+
+        $this->assertSame('Təkmilləşdirməyə ehtiyac var.', $report->summary);
+    }
 
 }
