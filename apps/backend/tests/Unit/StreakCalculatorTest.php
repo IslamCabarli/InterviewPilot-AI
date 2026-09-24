@@ -1,6 +1,7 @@
 <?php
  namespace Tests\Unit;
 
+ use App\Models\Interview;
  use Tests\TestCase;
  use App\Models\User;
  use App\Services\StreakCalculator;
@@ -17,5 +18,32 @@
          $calculator = new StreakCalculator();
 
          $this->assertSame(0, $calculator->calculate($user->id));
+     }
+
+     public function test_counts_consecutive_days_ending_today(): void
+     {
+         $user = User::factory()->create();
+
+         Interview::factory()->create([
+             'user_id' => $user->id,
+             'status' => 'completed',
+             'completed_at' => today(),
+         ]);
+
+         Interview::factory()->create([
+             'user_id' => $user->id,
+             'status' => 'completed',
+             'completed_at' => subDay(),
+         ]);
+
+         Interview::factory()->create([
+             'user_id' => $user->id,
+             'status' => 'completed',
+             'completed_at' => subDays(2),
+         ]);
+
+         $calculator = new StreakCalculator();
+
+         $this->assertSame(3, $calculator->calculate($user->id));
      }
  }
