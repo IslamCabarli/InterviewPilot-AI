@@ -79,4 +79,20 @@ class AuthControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['email']);
     }
+
+    public function test_user_can_login_with_correct_credentials(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'login@example.com',
+            'password' => bcrypt('correctpassword'),
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'login@example.com',
+            'password' => 'correctpassword',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['user', 'token']);
+    }
 }
