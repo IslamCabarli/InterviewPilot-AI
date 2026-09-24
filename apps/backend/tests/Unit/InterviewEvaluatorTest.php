@@ -105,4 +105,22 @@ class InterviewEvaluatorTest extends TestCase
         $this->assertSame('Təkmilləşdirməyə ehtiyac var.', $report->summary);
     }
 
+    public function test_handles_completely_malformed_response_gracefully(): void
+    {
+        Log::shouldReceive('warning')->once();
+
+        $evaluator = new InterviewEvaluator(
+            new FakeAiProvider('Bu, JSON deyil, sadəcə sərbəst mətndir.'),
+            new EvaluationPromptBuilder(),
+        );
+
+        $interview = $this->makeInterviewWithTranscript();
+        $report = $evaluator->evaluate($interview);
+
+        // Sistem çökməməlidir — fallback dəyərlər qaytarılmalıdır
+        $this->assertSame('Qiymətləndirmə tam alınmadı.', $report->summary);
+        $this->assertSame([], $report->weak_points);
+        $this->assertNull($interview->fresh()->overall_score);
+    }
+
 }
