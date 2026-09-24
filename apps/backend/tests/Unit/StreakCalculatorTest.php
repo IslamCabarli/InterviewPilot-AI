@@ -46,4 +46,24 @@
 
          $this->assertSame(3, $calculator->calculate($user->id));
      }
+
+     public function test_streak_breaks_on_gap_day(): void
+     {
+         $user = User::factory()->create();
+
+         Interview::factory()->create([
+             'user_id' => $user->id,
+             'status' => 'completed',
+             'completed_at' => today(),
+         ]);
+         Interview::factory()->create([
+             'user_id' => $user->id,
+             'status' => 'completed',
+             'completed_at' => today()->subDays(2),
+         ]);
+
+         $calculator = new StreakCalculator();
+
+         $this->assertSame(1, $calculator->calculate($user->id));
+     }
  }
