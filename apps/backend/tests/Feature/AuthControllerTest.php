@@ -110,4 +110,14 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    public function test_authenticated_user_can_fetch_own_profile(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')->getJson('/api/auth/me');
+        $response->assertStatus(200)
+                ->assertJsonPath('id', $user->id)
+                ->assertJsonPath('name', $user->email);
+    }
 }
