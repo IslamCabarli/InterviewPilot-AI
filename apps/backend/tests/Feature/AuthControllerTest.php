@@ -95,4 +95,19 @@ class AuthControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure(['user', 'token']);
     }
+
+    public function test_login_fails_with_wrong_password(): void
+    {
+        User::factory()->create([
+            'email' => 'login2@example.com',
+            'password' => bcrypt('correctpassword'),
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'login2@example.com',
+            'password' => 'wrongpassword',
+        ]);
+
+        $response->assertStatus(422);
+    }
 }
