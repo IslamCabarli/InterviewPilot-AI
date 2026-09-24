@@ -34,4 +34,21 @@ class AuthControllerTest extends TestCase
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('user'));
     }
+
+    public function test_registration_cannot_assign_admin_role_via_request(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Attacker',
+            'email' => 'attacker@gmail.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'admin'
+        ]);
+
+        $response->assertStatus(201);
+
+        $user = User::where('email', 'attacker@gmail.com')->first();
+        $this->assertTrue($user->hasRole('user'));
+        $this->assertFalse($user->hasRole('admin'));
+    }
 }
