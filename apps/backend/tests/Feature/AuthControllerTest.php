@@ -64,4 +64,19 @@ class AuthControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['password']);
     }
+
+    public function test_registration_rejects_duplicate_email(): void
+    {
+        User::factory()->create(['email' => 'existing@example.com']);
+
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Test',
+            'email' => 'existing@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+    }
 }
