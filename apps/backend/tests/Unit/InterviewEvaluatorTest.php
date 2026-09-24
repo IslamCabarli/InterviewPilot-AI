@@ -138,4 +138,41 @@ class InterviewEvaluatorTest extends TestCase
 
         $this->assertSame('Qiymətləndirmə tam alınmadı.', $report->summary);
     }
+
+    public function test_updates_existing_report_instead_of_duplicating(): void
+    {
+        $interview = $this->makeInterviewWithTranscript();
+
+        $firstEvaluator = new InterviewEvaluator(
+            new FakeAiProvider(json_encode([
+                'overall_score' => 60,
+                'score_breakdown' => ['technical' => 15, 'communication' => 15, 'confidence' => 10, 'problem_solving' => 10, 'best_practices' => 10],
+                'summary' => 'İlk cəhd.',
+                'weak_points' => [],
+                'strong_points' => [],
+                'recommended_topics' => [],
+            ])),
+            new EvaluationPromptBuilder(),
+        );
+        $firstEvaluator->evaluate($interview);
+
+        $secondEvaluator = new InterviewEvaluator(
+            new FakeAiProvider(json_encode([
+                'overall_score' => 85,
+                'score_breakdown' => ['technical' => 22, 'communication' => 18, 'confidence' => 15, 'problem_solving' => 18, 'best_practices' => 12],
+                'summary' => 'Yenidən qiymətləndirilib.',
+                'weak_points' => [],
+                'strong_points' => [],
+                'recommended_topics' => [],
+            ])),
+            new EvaluationPromptBuilder(),
+        );
+        $secondEvaluator->evaluate($interview->fresh());
+
+        $this->assertDatabaseCount('reports', 1); // duplicate yaranmayıb
+        $this->assertDatabaseHas('reports', [
+            'interview_id' => $interview->id,
+            'summary' => 'Yenidən qiymətləndirilib.',
+        ]);
+    }
 }
