@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import { renderWithProviders, screen } from '../test/render'
+import { renderWithProviders, screen } from '../test/render.tsx'
 import Register from './Register'
 
 vi.mock('react-router', async () => {
