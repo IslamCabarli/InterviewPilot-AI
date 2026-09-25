@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import { renderWithProviders, screen } from '../test/render.tsx'
+import { renderWithProviders, screen } from '../test/render'
 import Register from './Register'
 
 vi.mock('react-router', async () => {
@@ -31,7 +31,7 @@ describe('Register', () => {
     await user.type(screen.getByPlaceholderText('Şifrəni təsdiqlə'), 'different123')
     await user.click(screen.getByRole('button', { name: /qeydiyyatdan keç/i }))
 
-    expect(await screen.findByText(/şifrələr uyğun gəlmir/i)).toBeInTheDocument()
+    expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument()
   })
 
   it('shows an error for a short password', async () => {
@@ -41,6 +41,6 @@ describe('Register', () => {
     await user.type(screen.getByPlaceholderText('Şifrə'), 'short')
     await user.click(screen.getByRole('button', { name: /qeydiyyatdan keç/i }))
 
-    expect(await screen.findByText(/ən azı 8 simvol/i)).toBeInTheDocument()
+    expect(await screen.findByText(/at least 8 characters/i)).toBeInTheDocument()
   })
 })

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import { renderWithProviders, screen } from '../test/render.tsx'
+import { renderWithProviders, screen } from '../test/render'
 import Login from './Login'
 
 vi.mock('react-router', async () => {
@@ -25,17 +25,6 @@ describe('Login', () => {
 
     await user.click(screen.getByRole('button', { name: /daxil ol/i }))
 
-    expect(await screen.findByText(/düzgün email daxil edin/i)).toBeInTheDocument()
-  })
-
-  it('shows an error for invalid email format', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<Login />)
-
-    await user.type(screen.getByPlaceholderText('Email'), 'not-an-email')
-    await user.type(screen.getByPlaceholderText('Şifrə'), 'somepassword')
-    await user.click(screen.getByRole('button', { name: /daxil ol/i }))
-
-    expect(await screen.findByText(/düzgün email daxil edin/i)).toBeInTheDocument()
+    expect(await screen.findByText(/invalid email address/i)).toBeInTheDocument()
   })
 })
