@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: interviewpilot_test
+          POSTGRES_USER: interviewpilot
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5433
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, pdo_pgsql, mbstring, zip, intl
+          coverage: none
+
+      - name: Install Composer dependencies
+        working-directory: apps/backend
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copy .env for testing
+        working-directory: apps/backend
+        run: cp .env.example .env
+
+      - name: Generate app key
+        working-directory: apps/backend
+        run: php artisan key:generate
+
+      - name: Run migrations
+        working-directory: apps/backend
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5433
+          DB_DATABASE: interviewpilot_test
+          DB_USERNAME: interviewpilot
+          DB_PASSWORD: secret
+        run: php artisan migrate --force
+
+      - name: Run PHPUnit tests
+        working-directory: apps/backend
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5433
+          DB_DATABASE: interviewpilot_test
+          DB_USERNAME: interviewpilot
+          DB_PASSWORD: secret
+        run: php artisan test
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/frontend
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: apps/frontend
+        run: npm run lint
+
+      - name: Run TypeScript check
+        working-directory: apps/frontend
+        run: npx tsc --noEmit
+
+      - name: Run Vitest
+        working-directory: apps/frontend
+        run: npm run test
