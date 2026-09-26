@@ -18,7 +18,7 @@ jobs:
           POSTGRES_USER: interviewpilot
           POSTGRES_PASSWORD: secret
         ports:
-          - 5432:5433
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -52,7 +52,7 @@ jobs:
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 5433
+          DB_PORT: 5432
           DB_DATABASE: interviewpilot_test
           DB_USERNAME: interviewpilot
           DB_PASSWORD: secret
@@ -63,7 +63,7 @@ jobs:
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 5433
+          DB_PORT: 5432
           DB_DATABASE: interviewpilot_test
           DB_USERNAME: interviewpilot
           DB_PASSWORD: secret
