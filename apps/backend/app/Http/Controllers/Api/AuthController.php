@@ -92,7 +92,7 @@ class AuthController extends Controller
             new OA\Response(response: 422, description: 'Invalid email or password'),
         ]
     )]
-    public function Login(Request $request)
+    public function login(Request $request)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
