@@ -16,7 +16,6 @@ class GamificationController extends Controller
         private readonly StreakCalculator $streakCalculator,
     ) {}
 
-
     #[OA\Get(
         path: '/gamification/stats',
         summary: 'XP, level və badge statusu',
@@ -92,6 +91,4 @@ class GamificationController extends Controller
             'badges' => $badges,
         ]);
     }
-
-
 }

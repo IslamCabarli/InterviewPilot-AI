@@ -3,10 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Couchbase\Role;
 use Database\Seeders\RoleSeeder;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
@@ -28,7 +27,7 @@ class AuthControllerTest extends TestCase
         ]);
 
         $response->assertStatus(201)
-            ->assertJsonStructure(['user' =>['id', 'name', 'email'], 'token']);
+            ->assertJsonStructure(['user' => ['id', 'name', 'email'], 'token']);
 
         $user = User::where('email', 'test@gmail.com')->first();
         $this->assertNotNull($user);
@@ -42,7 +41,7 @@ class AuthControllerTest extends TestCase
             'email' => 'attacker@gmail.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         $response->assertStatus(201);
@@ -117,8 +116,8 @@ class AuthControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'sanctum')->getJson('/api/auth/me');
         $response->assertStatus(200)
-                ->assertJsonPath('id', $user->id)
-                ->assertJsonPath('name', $user->email);
+            ->assertJsonPath('id', $user->id)
+            ->assertJsonPath('name', $user->email);
     }
 
     public function test_unauthenticated_user_cannot_fetch_profile(): void

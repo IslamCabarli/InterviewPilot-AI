@@ -45,7 +45,6 @@ Route::middleware('auth:sanctum')
         Route::get('/{interview}/report', [InterviewController::class, 'report']);
     });
 
-
 /*
 |--------------------------------------------------------------------------
 | Dashboard Routes
@@ -57,8 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/gamification/stats', [GamificationController::class, 'stats']);
     Route::get('/dashboard/recent-interviews', [DashboardController::class, 'recentInterviews']);
 
-
-     Route::prefix('cv')->group(function () {
+    Route::prefix('cv')->group(function () {
         Route::post('/upload', [CvController::class, 'upload']);
         Route::get('/status', [CvController::class, 'status']);
         Route::delete('/', [CvController::class, 'destroy']);

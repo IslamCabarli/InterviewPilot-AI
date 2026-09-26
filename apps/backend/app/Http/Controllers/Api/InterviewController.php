@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\AiResponseChunk;
 use App\Http\Controllers\Controller;
+use App\Models\Answer;
 use App\Models\Interview;
 use App\Models\Question;
-use App\Models\Answer;
 use App\Services\Ai\AiProviderInterface;
 use App\Services\Ai\ConversationBuilder;
+use App\Services\Ai\InterviewEvaluator;
 use App\Services\Ai\InterviewPromptBuilder;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
-use App\Events\AiResponseChunk;
-use App\Services\Ai\InterviewEvaluator;
 
 class InterviewController extends Controller
 {
@@ -23,7 +23,6 @@ class InterviewController extends Controller
         private readonly InterviewEvaluator $evaluator,
 
     ) {}
-
 
     #[OA\Post(
         path: '/interviews',
@@ -41,10 +40,9 @@ class InterviewController extends Controller
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: 'The interview has started; the first question is being relayed.')
+            new OA\Response(response: 201, description: 'The interview has started; the first question is being relayed.'),
         ]
     )]
-
     public function start(Request $request)
     {
         $validated = $request->validate([
@@ -63,9 +61,8 @@ class InterviewController extends Controller
         $cvText = ($validated['use_cv'] ?? false) ? $request->user()->cv_text : null;
         $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty'], $cvText);
 
-
         $aiResponse = $this->aiProvider->chat($systemPrompt, [
-            ['role' => 'user', 'content' => 'Start the interview.']
+            ['role' => 'user', 'content' => 'Start the interview.'],
         ]);
 
         $question = Question::create([

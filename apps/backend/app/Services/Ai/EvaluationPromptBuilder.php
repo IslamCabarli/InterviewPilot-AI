@@ -14,6 +14,7 @@ class EvaluationPromptBuilder
             ->get()
             ->map(function ($q) {
                 $answer = $q->answer?->content ?? '(cavab verilməyib)';
+
                 return "Q: {$q->content}\nA: {$answer}";
             })
             ->implode("\n\n");

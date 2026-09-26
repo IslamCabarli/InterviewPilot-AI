@@ -24,7 +24,7 @@ class InterviewControllerTest extends TestCase
 
         // Bütün testlərdə default olaraq saxta AI provider işlədilir —
         // real Ollama-ya heç bir sorğu getmir.
-        $this->app->bind(AiProviderInterface::class, fn() => new FakeAiProvider());
+        $this->app->bind(AiProviderInterface::class, fn () => new FakeAiProvider);
     }
 
     private function authenticatedUser(): User

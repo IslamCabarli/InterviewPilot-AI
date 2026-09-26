@@ -1,84 +1,84 @@
 <?php
- namespace Tests\Unit;
 
- use App\Models\Interview;
- use Tests\TestCase;
- use App\Models\User;
- use App\Services\StreakCalculator;
- use Illuminate\Foundation\Testing\RefreshDatabase;
- use Illuminate\Support\Carbon;
+namespace Tests\Unit;
 
- class StreakCalculatorTest extends TestCase
- {
-     use RefreshDatabase;
+use App\Models\Interview;
+use App\Models\User;
+use App\Services\StreakCalculator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-     public function test_returns_zero_when_no_completed_interviews(): void
-     {
-         $user = User::factory()->create();
-         $calculator = new StreakCalculator();
+class StreakCalculatorTest extends TestCase
+{
+    use RefreshDatabase;
 
-         $this->assertSame(0, $calculator->calculate($user->id));
-     }
+    public function test_returns_zero_when_no_completed_interviews(): void
+    {
+        $user = User::factory()->create();
+        $calculator = new StreakCalculator;
 
-     public function test_counts_consecutive_days_ending_today(): void
-     {
-         $user = User::factory()->create();
+        $this->assertSame(0, $calculator->calculate($user->id));
+    }
 
-         Interview::factory()->create([
-             'user_id' => $user->id,
-             'status' => 'completed',
-             'completed_at' => today(),
-         ]);
+    public function test_counts_consecutive_days_ending_today(): void
+    {
+        $user = User::factory()->create();
 
-         Interview::factory()->create([
-             'user_id' => $user->id,
-             'status' => 'completed',
-             'completed_at' => subDay(),
-         ]);
+        Interview::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'completed_at' => today(),
+        ]);
 
-         Interview::factory()->create([
-             'user_id' => $user->id,
-             'status' => 'completed',
-             'completed_at' => subDays(2),
-         ]);
+        Interview::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'completed_at' => subDay(),
+        ]);
 
-         $calculator = new StreakCalculator();
+        Interview::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'completed_at' => subDays(2),
+        ]);
 
-         $this->assertSame(3, $calculator->calculate($user->id));
-     }
+        $calculator = new StreakCalculator;
 
-     public function test_streak_breaks_on_gap_day(): void
-     {
-         $user = User::factory()->create();
+        $this->assertSame(3, $calculator->calculate($user->id));
+    }
 
-         Interview::factory()->create([
-             'user_id' => $user->id,
-             'status' => 'completed',
-             'completed_at' => today(),
-         ]);
-         Interview::factory()->create([
-             'user_id' => $user->id,
-             'status' => 'completed',
-             'completed_at' => today()->subDays(2),
-         ]);
+    public function test_streak_breaks_on_gap_day(): void
+    {
+        $user = User::factory()->create();
 
-         $calculator = new StreakCalculator();
+        Interview::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'completed_at' => today(),
+        ]);
+        Interview::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'completed_at' => today()->subDays(2),
+        ]);
 
-         $this->assertSame(1, $calculator->calculate($user->id));
-     }
+        $calculator = new StreakCalculator;
 
-     public function test_streak_is_zero_if_last_activity_was_not_today(): void
-     {
-         $user = User::factory()->create();
+        $this->assertSame(1, $calculator->calculate($user->id));
+    }
 
-         Interview::factory()->create([
-             'user_id' => $user->id,
-             'status' => 'completed',
-             'completed_at' => today()->subDays(2),
-         ]);
+    public function test_streak_is_zero_if_last_activity_was_not_today(): void
+    {
+        $user = User::factory()->create();
 
-         $calculator = new StreakCalculator();
+        Interview::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'completed_at' => today()->subDays(2),
+        ]);
 
-         $this->assertSame(0, $calculator->calculate($user->id));
-     }
- }
+        $calculator = new StreakCalculator;
+
+        $this->assertSame(0, $calculator->calculate($user->id));
+    }
+}

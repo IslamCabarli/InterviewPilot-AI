@@ -49,7 +49,7 @@ class InterviewEvaluatorTest extends TestCase
 
         $evaluator = new InterviewEvaluator(
             new FakeAiProvider($rawJson),
-            new EvaluationPromptBuilder(),
+            new EvaluationPromptBuilder,
         );
 
         $interview = $this->makeInterviewWithTranscript();
@@ -59,20 +59,21 @@ class InterviewEvaluatorTest extends TestCase
         $this->assertSame(['Testing'], $report->weak_points);
         $this->assertSame(82, $interview->fresh()->overall_score);
     }
+
     public function test_parses_json_wrapped_in_markdown_code_fence(): void
     {
-        $rawJson = "```json\n" . json_encode([
-                'overall_score' => 70,
-                'score_breakdown' => ['technical' => 18, 'communication' => 16, 'confidence' => 12, 'problem_solving' => 14, 'best_practices' => 10],
-                'summary' => 'Orta səviyyə.',
-                'weak_points' => [],
-                'strong_points' => [],
-                'recommended_topics' => [],
-            ]) . "\n```";
+        $rawJson = "```json\n".json_encode([
+            'overall_score' => 70,
+            'score_breakdown' => ['technical' => 18, 'communication' => 16, 'confidence' => 12, 'problem_solving' => 14, 'best_practices' => 10],
+            'summary' => 'Orta səviyyə.',
+            'weak_points' => [],
+            'strong_points' => [],
+            'recommended_topics' => [],
+        ])."\n```";
 
         $evaluator = new InterviewEvaluator(
             new FakeAiProvider($rawJson),
-            new EvaluationPromptBuilder(),
+            new EvaluationPromptBuilder,
         );
 
         $interview = $this->makeInterviewWithTranscript();
@@ -85,18 +86,18 @@ class InterviewEvaluatorTest extends TestCase
     public function test_parses_json_with_preamble_text(): void
     {
         // Bəzi kiçik modellər JSON-dan əvvəl izahat mətni əlavə edir
-        $rawJson = 'Here is my evaluation: ' . json_encode([
-                'overall_score' => 55,
-                'score_breakdown' => ['technical' => 15, 'communication' => 10, 'confidence' => 10, 'problem_solving' => 10, 'best_practices' => 10],
-                'summary' => 'Təkmilləşdirməyə ehtiyac var.',
-                'weak_points' => ['Communication'],
-                'strong_points' => [],
-                'recommended_topics' => [],
-            ]);
+        $rawJson = 'Here is my evaluation: '.json_encode([
+            'overall_score' => 55,
+            'score_breakdown' => ['technical' => 15, 'communication' => 10, 'confidence' => 10, 'problem_solving' => 10, 'best_practices' => 10],
+            'summary' => 'Təkmilləşdirməyə ehtiyac var.',
+            'weak_points' => ['Communication'],
+            'strong_points' => [],
+            'recommended_topics' => [],
+        ]);
 
         $evaluator = new InterviewEvaluator(
             new FakeAiProvider($rawJson),
-            new EvaluationPromptBuilder(),
+            new EvaluationPromptBuilder,
         );
 
         $interview = $this->makeInterviewWithTranscript();
@@ -111,7 +112,7 @@ class InterviewEvaluatorTest extends TestCase
 
         $evaluator = new InterviewEvaluator(
             new FakeAiProvider('Bu, JSON deyil, sadəcə sərbəst mətndir.'),
-            new EvaluationPromptBuilder(),
+            new EvaluationPromptBuilder,
         );
 
         $interview = $this->makeInterviewWithTranscript();
@@ -123,14 +124,13 @@ class InterviewEvaluatorTest extends TestCase
         $this->assertNull($interview->fresh()->overall_score);
     }
 
-
     public function test_handles_empty_response(): void
     {
         Log::shouldReceive('warning')->once();
 
         $evaluator = new InterviewEvaluator(
             new FakeAiProvider(''),
-            new EvaluationPromptBuilder(),
+            new EvaluationPromptBuilder,
         );
 
         $interview = $this->makeInterviewWithTranscript();
@@ -152,7 +152,7 @@ class InterviewEvaluatorTest extends TestCase
                 'strong_points' => [],
                 'recommended_topics' => [],
             ])),
-            new EvaluationPromptBuilder(),
+            new EvaluationPromptBuilder,
         );
         $firstEvaluator->evaluate($interview);
 
@@ -165,7 +165,7 @@ class InterviewEvaluatorTest extends TestCase
                 'strong_points' => [],
                 'recommended_topics' => [],
             ])),
-            new EvaluationPromptBuilder(),
+            new EvaluationPromptBuilder,
         );
         $secondEvaluator->evaluate($interview->fresh());
 

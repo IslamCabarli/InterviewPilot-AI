@@ -4,16 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Interview;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use OpenApi\Attributes as OA;
 use App\Services\StreakCalculator;
+use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class DashboardController extends Controller
 {
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
     ) {}
+
     #[OA\Get(
         path: '/dashboard/stats',
         summary: 'Dashboard statistikası',
@@ -144,6 +144,4 @@ class DashboardController extends Controller
 
         return $result;
     }
-
-
 }

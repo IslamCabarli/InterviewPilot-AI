@@ -5,7 +5,6 @@ namespace App\Services\Ai;
 use App\Models\Interview;
 use App\Models\Report;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class InterviewEvaluator
 {
@@ -54,6 +53,7 @@ class InterviewEvaluator
 
         if ($start === false || $end === false) {
             Log::warning('AI evaluation JSON tapılmadı', ['raw' => $raw]);
+
             return [];
         }
 
@@ -62,6 +62,7 @@ class InterviewEvaluator
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             Log::warning('AI evaluation JSON parse xətası', ['raw' => $raw, 'error' => json_last_error_msg()]);
+
             return [];
         }
 

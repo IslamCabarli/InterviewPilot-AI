@@ -11,7 +11,7 @@ class CvParser
     public function extractText(UploadedFile $file): string
     {
         try {
-            $parser = new Parser();
+            $parser = new Parser;
             $pdf = $parser->parseFile($file->getRealPath());
             $text = $pdf->getText();
 
@@ -19,7 +19,7 @@ class CvParser
             $text = preg_replace('/\s+/', ' ', $text ?? '');
 
             return mb_substr(trim($text), 0, 6000);
-        } catch (EmptyPdfException | \Throwable) {
+        } catch (EmptyPdfException|\Throwable) {
             return '';
         }
     }

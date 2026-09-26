@@ -20,7 +20,7 @@ class PiperProvider implements TextToSpeechInterface
             ->post("{$this->baseUrl}/synthesize", ['text' => $text]);
 
         if ($response->failed()) {
-            throw new RuntimeException('Piper API error: ' . $response->body());
+            throw new RuntimeException('Piper API error: '.$response->body());
         }
 
         return $response->body();

@@ -22,7 +22,7 @@ class FasterWhisperProvider implements SpeechToTextInterface
             ->post("{$this->baseUrl}/transcribe");
 
         if ($response->failed()) {
-            throw new RuntimeException('Whisper API error: ' . $response->body());
+            throw new RuntimeException('Whisper API error: '.$response->body());
         }
 
         return $response->json('text') ?? '';

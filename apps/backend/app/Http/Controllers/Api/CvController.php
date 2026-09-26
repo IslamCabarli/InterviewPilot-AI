@@ -36,7 +36,7 @@ class CvController extends Controller
         }
 
         $file = $request->file('cv');
-        $path = $file->store('cvs/' . $user->id, 'local');
+        $path = $file->store('cvs/'.$user->id, 'local');
         $text = $this->parser->extractText($file);
 
         $user->update([
@@ -47,7 +47,7 @@ class CvController extends Controller
 
         return response()->json([
             'message' => 'CV uğurla yükləndi.',
-            'preview' => mb_substr($text, 0, 300) . (mb_strlen($text) > 300 ? '...' : ''),
+            'preview' => mb_substr($text, 0, 300).(mb_strlen($text) > 300 ? '...' : ''),
         ]);
     }
 
@@ -63,8 +63,6 @@ class CvController extends Controller
     public function status(Request $request)
     {
         $user = $request->user();
-
-
 
         return response()->json([
             'hasCv' => ! is_null($user->cv_path),
