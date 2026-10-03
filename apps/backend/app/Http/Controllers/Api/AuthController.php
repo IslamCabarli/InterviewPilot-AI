@@ -100,11 +100,22 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $credentials['email'])->first();
+
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            Log::channel('security')->warning('Failed login attempt', [
+                'email' => $credentials['email'],
+                'ip' => $request->ip(),
+            ]);
+
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
+
+        Log::channel('security')->info('Successful login', [
+            'user_id' => $user->id,
+            'ip' => $request->ip(),
+        ]);
         $token = $user->createToken('web')->plainTextToken;
 
         return response()->json([
