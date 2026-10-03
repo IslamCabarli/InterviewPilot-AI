@@ -37,10 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')
     ->prefix('interviews')
     ->group(function () {
-        Route::post('/', [InterviewController::class, 'start']);
+        Route::post('/', [InterviewController::class, 'start'])->middleware('throttle:10,60');
         Route::get('/active', [InterviewController::class, 'active']);
         Route::get('/{interview}', [InterviewController::class, 'show']);
-        Route::post('/{interview}/answer', [InterviewController::class, 'answer']);
+        Route::post('/{interview}/answer', [InterviewController::class, 'answer'])->middleware('throttle:30,10');
         Route::post('/{interview}/complete', [InterviewController::class, 'complete']);
         Route::get('/{interview}/report', [InterviewController::class, 'report']);
     });
