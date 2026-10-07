@@ -58,11 +58,14 @@ docker compose exec backend php artisan migrate --seed
 
 ### 3. Pull the Ollama model
 
-`
-docker exec -it interviewpilot-ollama ollama pull llama3.1:8b
-`
+Make sure Ollama is running on your machine, then:
 
-This downloads ~4.9GB and only needs to be done once (stored in a persistent volume).
+```
+ollama pull llama3.2:3b
+```
+
+Set `OLLAMA_MODEL=llama3.2:3b` in `apps/backend/.env`. On GPUs with 4–6GB VRAM this
+runs fully on the GPU; larger models (e.g. `llama3.1:8b`) may partially fall back to CPU.
 
 ### 4. Set up Speech-to-Text and Text-to-Speech (run locally, not in Docker)
 
@@ -163,28 +166,21 @@ stack traces, and framework details in API error responses — a real security
 risk, not just a cosmetic one.
 
 
-## GPU Acceleration (optional, NVIDIA only)
+## GPU Acceleration
 
-If you have an NVIDIA GPU, Ollama can run significantly faster using it.
+Ollama runs natively on your machine, so it uses an NVIDIA GPU automatically
+when drivers are up to date — no extra Docker configuration needed. Verify with:
 
-**Requirements:**
-- NVIDIA GPU with up-to-date drivers
-- Docker Desktop with WSL2 backend (GPU support is built-in on Windows)
-- On native Linux, you'll additionally need the
-  [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+```
+ollama ps
+```
 
-**Enable GPU mode:**
-\`\`\`bash
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
-\`\`\`
+The `PROCESSOR` column should read `100% GPU`. If it shows a CPU/GPU split, the
+model is too large for your VRAM — switch to a smaller one (e.g. `llama3.2:3b`).
 
-Without an NVIDIA GPU, use the standard `docker compose up -d` — Ollama will
-run on CPU, which works but responds more slowly.
-
-> Note: on GPUs with limited VRAM (6GB or less), the model may partially run
-> on CPU due to memory constraints — this is normal and still faster than
-> CPU-only mode.
-
+> **Linux:** add `extra_hosts: ["host.docker.internal:host-gateway"]` to the
+> `backend`, `reverb` and `queue` services in `docker-compose.yml`, and set
+> `OLLAMA_HOST=0.0.0.0` so containers can reach Ollama on the host.
 
 ## Security Notes for Production Deployment
 
