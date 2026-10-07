@@ -25,20 +25,6 @@ services:
     networks:
       - interviewpilot
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: interviewpilot-ollama
-    restart: unless-stopped
-    environment:
-      - OLLAMA_CONTEXT_LENGTH=2048
-      - OLLAMA_KEEP_ALIVE=30m
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollamadata:/root/.ollama
-    networks:
-      - interviewpilot
-
   backend:
     build:
       context: ./apps/backend
@@ -55,7 +41,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - ollama
     networks:
       - interviewpilot
 
@@ -74,7 +59,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - ollama
     networks:
       - interviewpilot
 
@@ -91,7 +75,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - ollama
     networks:
       - interviewpilot
 
@@ -116,5 +99,4 @@ networks:
 volumes:
   pgdata:
   redisdata:
-  ollamadata:
   backend_vendor:
