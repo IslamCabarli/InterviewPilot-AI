@@ -119,16 +119,29 @@ class InterviewController extends Controller
             'content' => $validated['content'],
         ]);
 
-        $cvText = $interview->user->cv_text;
+        $cvText = $interview->use_cv ? $interview->user->cv_text : null;
         $systemPrompt = $this->promptBuilder->build($interview->type, $interview->difficulty, $cvText);
         $conversation = $this->conversationBuilder->build($interview);
 
         $fullResponse = '';
+        $buffer = '';
+        $lastFlush = 0.0;
 
-        $this->aiProvider->streamResponse($systemPrompt, $conversation, function ($chunk) use (&$fullResponse, $interview) {
+        $this->aiProvider->streamResponse($systemPrompt, $conversation, function ($chunk) use (&$fullResponse, &$buffer, &$lastFlush, $interview) {
             $fullResponse .= $chunk;
-            broadcast(new AiResponseChunk($interview->id, $chunk));
+            $buffer .= $chunk;
+
+            $now = microtime(true);
+            if ($now - $lastFlush >= self::BROADCAST_INTERVAL) {
+                broadcast(new AiResponseChunk($interview->id, $buffer));
+                $buffer = '';
+                $lastFlush = $now;
+            }
         });
+
+        if ($buffer !== '') {
+            broadcast(new AiResponseChunk($interview->id, $buffer));
+        }
 
         broadcast(new AiResponseChunk($interview->id, '', done: true));
 
