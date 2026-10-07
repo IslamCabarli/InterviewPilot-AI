@@ -16,6 +16,7 @@ class Interview extends Model
         'user_id',
         'type',
         'difficulty',
+        'use_cv',
         'status',
         'overall_score',
         'score_breakdown',
@@ -24,6 +25,7 @@ class Interview extends Model
     ];
 
     protected $casts = [
+        'use_cv' => 'boolean',
         'score_breakdown' => 'array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
