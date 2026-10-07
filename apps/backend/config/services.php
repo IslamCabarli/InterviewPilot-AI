@@ -39,6 +39,10 @@ return [
         'url' => env('OLLAMA_URL', 'http://localhost:11434'),
         'model' => env('OLLAMA_MODEL', 'llama3.1:8b'),
         'timeout' => env('OLLAMA_TIMEOUT', 60),
+        'num_ctx' => env('OLLAMA_NUM_CTX', 4096),
+        'num_predict' => env('OLLAMA_NUM_PREDICT', 300),
+        'num_predict_json' => env('OLLAMA_NUM_PREDICT_JSON', 800),
+        'keep_alive' => env('OLLAMA_KEEP_ALIVE', '30m'),
     ],
 
     'whisper' => [

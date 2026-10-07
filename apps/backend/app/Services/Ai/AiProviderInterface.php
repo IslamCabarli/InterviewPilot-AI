@@ -8,8 +8,9 @@ interface AiProviderInterface
      * Sistem prompt-u və mesaj tarixçəsini göndərib tam AI cavabını alır (sinxron).
      *
      * @param  array<int, array{role: string, content: string}>  $messages
+     * @param  bool  $json  true olduqda provider cavabı JSON formatında qaytarmağa məcbur edir
      */
-    public function chat(string $systemPrompt, array $messages): string;
+    public function chat(string $systemPrompt, array $messages, bool $json = false): string;
 
     /**
      * Eyni sorğunu stream şəklində göndərir, hər token/parça gələn kimi
