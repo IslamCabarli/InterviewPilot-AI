@@ -33,13 +33,13 @@ class StreakCalculatorTest extends TestCase
         Interview::factory()->create([
             'user_id' => $user->id,
             'status' => 'completed',
-            'completed_at' => subDay(),
+            'completed_at' => today()->subDay(),
         ]);
 
         Interview::factory()->create([
             'user_id' => $user->id,
             'status' => 'completed',
-            'completed_at' => subDays(2),
+            'completed_at' => today()->subDays(2),
         ]);
 
         $calculator = new StreakCalculator;
