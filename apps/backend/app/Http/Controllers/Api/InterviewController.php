@@ -16,6 +16,7 @@ use OpenApi\Attributes as OA;
 
 class InterviewController extends Controller
 {
+    private const BROADCAST_INTERVAL = 0.08;
     public function __construct(
         private readonly AiProviderInterface $aiProvider,
         private readonly InterviewPromptBuilder $promptBuilder,
