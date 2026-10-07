@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+  import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import PageTransition from '../components/PageTransition'
 import ChatBubble from '../components/ChatBubble'
@@ -66,13 +66,18 @@ export default function Interview() {
       try {
         const text = await transcribeAudio(audioBlob)
         setInput((prev) => (prev ? `${prev} ${text}` : text))
+        setErrorMessage(null)
       } catch {
-        // Səssiz uğursuzluq — istifadəçi yaza bilər, funksiya bloklanmır
+        setErrorMessage('Səsi mətnə çevirmək mümkün olmadı. Yenidən cəhd et.')
       } finally {
         setIsTranscribing(false)
       }
     } else {
-      await startRecording()
+      try {
+        await startRecording()
+      } catch (err) {
+        setErrorMessage(err instanceof Error ? err.message : 'Mikrofon işə düşmədi.')
+      }
     }
   }
 
