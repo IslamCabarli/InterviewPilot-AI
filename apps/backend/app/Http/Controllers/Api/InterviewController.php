@@ -55,11 +55,13 @@ class InterviewController extends Controller
             'user_id' => $request->user()->id,
             'type' => $validated['type'],
             'difficulty' => $validated['difficulty'],
+            'use_cv' => $validated['use_cv'] ?? false,
             'status' => 'in_progress',
             'started_at' => now(),
         ]);
 
-        $cvText = ($validated['use_cv'] ?? false) ? $request->user()->cv_text : null;
+
+        $cvText = $interview->use_cv ? $request->user()->cv_text : null;
         $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty'], $cvText);
 
         $aiResponse = $this->aiProvider->chat($systemPrompt, [
