@@ -7,7 +7,7 @@ import os
 
 app = FastAPI()
 
-PIPER_EXE = os.path.join("piper", "piper.exe")
+PIPER_EXE = os.path.join("piper", "piper.exe" if os.name == "nt" else "piper")
 VOICE_MODEL = os.path.join("piper", "voices", "en_US-amy-medium.onnx")
 
 

@@ -5,3 +5,4 @@ venv/
 # Python cache
 __pycache__/
 *.pyc
+piper_linux_x86_64.tar.gz
