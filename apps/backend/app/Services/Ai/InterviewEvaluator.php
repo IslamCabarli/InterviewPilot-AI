@@ -19,7 +19,7 @@ class InterviewEvaluator
 
         $rawResponse = $this->aiProvider->chat($systemPrompt, [
             ['role' => 'user', 'content' => $transcript],
-        ]);
+        ], json: true);
 
         $data = $this->parseJson($rawResponse);
 
