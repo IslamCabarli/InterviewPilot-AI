@@ -27,8 +27,13 @@ class SpeechController extends Controller
     public function transcribe(Request $request)
     {
         $request->validate([
-            'audio' => ['required', 'file', 'mimetypes:audio/webm,audio/wav,audio/mpeg', 'max:20480'], // max 20MB
-        ]);
+            'audio' => [
+                'required',
+                'file',
+                'mimetypes:audio/webm,video/webm,audio/ogg,application/ogg,audio/wav,audio/x-wav,audio/mpeg,audio/mp4,video/mp4',
+                'max:20480', // max 20MB
+            ],
+             ]);
 
         $text = $this->stt->transcribe($request->file('audio'));
 
