@@ -10,7 +10,7 @@ class FakeAiProvider implements AiProviderInterface
         private readonly string $fixedResponse = 'Bu, süni test cavabıdır.',
     ) {}
 
-    public function chat(string $systemPrompt, array $messages): string
+    public function chat(string $systemPrompt, array $messages, bool $json = false): string
     {
         return $this->fixedResponse;
     }
