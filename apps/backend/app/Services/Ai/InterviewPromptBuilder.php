@@ -19,9 +19,14 @@ class InterviewPromptBuilder
         'hard' => 'Ask challenging, in-depth questions that require strong reasoning.',
         'senior' => 'Ask senior-level questions covering architecture, trade-offs, and leadership.',
     ];
+    private const MAX_CV_CHARS = 1500;
+
 
     public function build(string $type, string $difficulty, ?string $cvText = null): string
     {
+        if ($cvText !== null) {
+            $cvText = mb_substr($cvText, 0, self::MAX_CV_CHARS);
+        }
         $roleDescription = self::ROLE_DESCRIPTIONS[$type] ?? $type;
         $difficultyGuidance = self::DIFFICULTY_GUIDANCE[$difficulty] ?? self::DIFFICULTY_GUIDANCE['medium'];
 
