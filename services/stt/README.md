@@ -28,7 +28,7 @@ python -m venv venv
 **Linux / macOS / WSL:**
 ```bash
 cd services/stt
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate
 ```
 
