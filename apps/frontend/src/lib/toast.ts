@@ -26,7 +26,6 @@ export const useToastStore = create<ToastState>((set, get) => ({
   dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }))
 
-// React-dan kənardan da çağırıla bilər (məs. axios interceptor)
 export const toast = {
   success: (message: string) => useToastStore.getState().push('success', message),
   error: (message: string) => useToastStore.getState().push('error', message),
