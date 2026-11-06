@@ -4,9 +4,11 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router'
 import { queryClient } from './app/queryClient'
 import { AuthProvider } from './auth/AuthProvider'
+import ErrorBoundary from './components/ErrorBoundary'
+import { ToastViewport } from './components/ui'
 import App from './App'
+import './theme/themeStore'
 import './index.css'
-import ErrorBoundary from './components/ErrorBoundary.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,7 +16,8 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <AuthProvider>
           <ErrorBoundary>
-          <App />
+            <App />
+            <ToastViewport />
           </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
