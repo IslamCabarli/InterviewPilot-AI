@@ -1,19 +1,56 @@
-@import 'tailwindcss';
-@theme {
-    --color-bg: #fafaf9;
-    --color-surface: #ffffff;
-    --color-text-primary: #14151a;
-    --color-text-secondary: #6b6f76;
-    --color-border: #e4e4e7;
-    --color-accent: #e2a6dd;
-    --color-positive: #1b8a5a;
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-body: 'Inter', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    color-scheme: light;
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-muted: #f4f4f2;
+    --text-primary: #14151a;
+    --text-secondary: #6b6f76;
+    --border: #e4e4e7;
+    --accent: #2554f6;
+    --accent-foreground: #ffffff;
+    --positive: #1b8a5a;
+    --danger: #d92d20;
 }
 
-body {
-    background-color: var(--color-bg);
-    color: var(--color-text-primary);
-    font-family: var(--font-body);
+.dark {
+    color-scheme: dark;
+    --bg: #0e0f12;
+    --surface: #15171b;
+    --surface-muted: #1b1d22;
+    --text-primary: #ececee;
+    --text-secondary: #9a9ea6;
+    --border: #272a30;
+    --accent: #6b8cff;
+    --accent-foreground: #0e0f12;
+    --positive: #3bb887;
+    --danger: #f2706a;
+}
+
+@theme inline {
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-surface-muted: var(--surface-muted);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-border: var(--border);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-positive: var(--positive);
+    --color-danger: var(--danger);
+}
+
+@theme {
+    --font-display: "Space Grotesk", sans-serif;
+    --font-body: "Inter", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+}
+
+@layer base {
+    body {
+        @apply bg-bg font-body text-text-primary antialiased;
+    }
 }
