@@ -1,8 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate, Link } from 'react-router'
-import { LoginSchema, type LoginInput } from '../lib/validation'
+import { Link, useNavigate } from 'react-router'
+import AuthLayout from '../components/AuthLayout'
+import { Button, Input } from '../components/ui'
 import { useLogin } from '../auth/queries'
+import { getAuthErrorMessage } from '../lib/errors'
+import { loginSchema, type LoginInput } from '../lib/validation'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -12,7 +15,7 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInput>({ resolver: zodResolver(LoginSchema) })
+  } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) })
 
   const onSubmit = (data: LoginInput) => {
     loginMutation.mutate(data, {
@@ -21,53 +24,45 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-8">
-        <h1 className="font-display text-2xl font-semibold">Daxil ol</h1>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-          <div>
-            <input
-              {...register('email')}
-              type="email"
-              placeholder="Email"
-              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
-          </div>
-
-          <div>
-            <input
-              {...register('password')}
-              type="password"
-              placeholder="Şifrə"
-              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-            {errors.password && (
-              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
-            )}
-          </div>
-
-          {loginMutation.isError && (
-            <p className="text-xs text-red-500">Email və ya şifrə yanlışdır.</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loginMutation.isPending}
-            className="w-full rounded-md bg-accent py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
-          >
-            {loginMutation.isPending ? 'Yoxlanılır...' : 'Daxil ol'}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-text-secondary">
+    <AuthLayout
+      title="Yenidən xoş gəldin"
+      subtitle="Hesabına daxil ol və təcrübəni davam etdir."
+      footer={
+        <>
           Hesabın yoxdur?{' '}
-          <Link to="/register" className="text-accent">
+          <Link to="/register" className="font-medium text-accent hover:underline">
             Qeydiyyatdan keç
           </Link>
-        </p>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <Input
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="ad@example.com"
+          error={errors.email?.message}
+          {...register('email')}
+        />
+        <Input
+          label="Şifrə"
+          type="password"
+          autoComplete="current-password"
+          error={errors.password?.message}
+          {...register('password')}
+        />
+
+        {loginMutation.isError && (
+          <p role="alert" className="text-sm text-danger">
+            {getAuthErrorMessage(loginMutation.error, 'Email və ya şifrə yanlışdır.')}
+          </p>
+        )}
+
+        <Button type="submit" loading={loginMutation.isPending} className="w-full">
+          Daxil ol
+        </Button>
+      </form>
+    </AuthLayout>
   )
 }
