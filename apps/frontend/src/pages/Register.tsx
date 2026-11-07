@@ -1,8 +1,12 @@
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { registerSchema, type RegisterInput } from '../lib/validation'
+import { isAxiosError } from 'axios'
+import { Link, useNavigate } from 'react-router'
+import AuthLayout from '../components/AuthLayout'
+import { Button, Input } from '../components/ui'
 import { useRegister } from '../auth/queries'
+import { getAuthErrorMessage } from '../lib/errors'
+import { registerSchema, type RegisterInput } from '../lib/validation'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -11,86 +15,75 @@ export default function Register() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
-  } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
-  })
+  } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) })
 
   const onSubmit = (data: RegisterInput) => {
     registerMutation.mutate(data, {
       onSuccess: () => navigate('/dashboard'),
+      onError: (error) => {
+        if (isAxiosError(error) && error.response?.status === 422 && error.response.data?.errors?.email) {
+          setError('email', { message: 'Bu email ilə hesab artıq mövcuddur' })
+        }
+      },
     })
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-8">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Qeydiyyat</h1>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-          <div>
-            <input
-              {...register('name')}
-              placeholder="Ad Soyad"
-              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
-          </div>
-
-          <div>
-            <input
-              {...register('email')}
-              type="email"
-              placeholder="Email"
-              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
-          </div>
-
-          <div>
-            <input
-              {...register('password')}
-              type="password"
-              placeholder="Şifrə"
-              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-            {errors.password && (
-              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
-            )}
-          </div>
-
-          <div>
-            <input
-              {...register('password_confirmation')}
-              type="password"
-              placeholder="Şifrəni təsdiqlə"
-              className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-            {errors.password_confirmation && (
-              <p className="mt-1 text-xs text-red-500">{errors.password_confirmation.message}</p>
-            )}
-          </div>
-
-          {registerMutation.isError && (
-            <p className="text-xs text-red-500">Qeydiyyat uğursuz oldu. Yenidən cəhd et.</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={registerMutation.isPending}
-            className="w-full rounded-md bg-accent py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
-          >
-            {registerMutation.isPending ? 'Göndərilir...' : 'Qeydiyyatdan keç'}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-text-secondary">
+    <AuthLayout
+      title="Hesab yarat"
+      subtitle="Bir dəqiqəyə qeydiyyatdan keç və ilk müsahibəni başlat."
+      footer={
+        <>
           Artıq hesabın var?{' '}
-          <Link to="/login" className="text-accent">
+          <Link to="/login" className="font-medium text-accent hover:underline">
             Daxil ol
           </Link>
-        </p>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <Input
+          label="Ad Soyad"
+          autoComplete="name"
+          error={errors.name?.message}
+          {...register('name')}
+        />
+        <Input
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="ad@example.com"
+          error={errors.email?.message}
+          {...register('email')}
+        />
+        <Input
+          label="Şifrə"
+          type="password"
+          autoComplete="new-password"
+          hint="Ən azı 8 simvol"
+          error={errors.password?.message}
+          {...register('password')}
+        />
+        <Input
+          label="Şifrəni təsdiqlə"
+          type="password"
+          autoComplete="new-password"
+          error={errors.password_confirmation?.message}
+          {...register('password_confirmation')}
+        />
+
+        {registerMutation.isError && !errors.email && (
+          <p role="alert" className="text-sm text-danger">
+            {getAuthErrorMessage(registerMutation.error, 'Qeydiyyat uğursuz oldu. Yenidən cəhd et.')}
+          </p>
+        )}
+
+        <Button type="submit" loading={registerMutation.isPending} className="w-full">
+          Qeydiyyatdan keç
+        </Button>
+      </form>
+    </AuthLayout>
   )
 }
