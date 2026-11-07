@@ -1,21 +1,26 @@
-import { Routes, Route, Navigate } from 'react-router'
+import { Route, Routes } from 'react-router'
+import { GuestRoute } from './auth/GuestRoute'
 import { ProtectedRoute } from './auth/ProtectedRoute'
-import Login from './pages/Login'
-import Register from './pages/Register'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Interview from './pages/Interview'
-import Profile from './pages/Profile'
-import Settings from './pages/Settings'
 import InterviewReport from './pages/InterviewReport'
+import Landing from './pages/Landing'
+import Login from './pages/Login'
 import NotFound from './pages/NotFound'
+import Profile from './pages/Profile'
+import Register from './pages/Register'
+import Settings from './pages/Settings'
 import UiKit from './pages/UiKit'
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route element={<GuestRoute />}>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
@@ -26,8 +31,6 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
-
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
       {import.meta.env.DEV && <Route path="/ui" element={<UiKit />} />}
       <Route path="*" element={<NotFound />} />
