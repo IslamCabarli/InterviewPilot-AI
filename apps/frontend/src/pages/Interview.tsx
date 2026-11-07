@@ -1,373 +1,59 @@
-  import { useState, useRef, useEffect } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import PageTransition from '../components/PageTransition'
-import ChatBubble from '../components/ChatBubble'
-import TypingIndicator from '../components/TypingIndicator'
-import { startInterview, submitAnswer, completeInterview, getActiveInterview, type Question } from '../api/interview'
-import { useAudioRecorder } from '../hooks/useAudioRecorder'
-import { transcribeAudio, synthesizeSpeech } from '../api/speech'
-import MicButton from '../components/MicButton'
-import AvatarOrb from '../components/AvatarOrb'
-import { createEcho } from '../lib/echo'
-import { useNavigate } from 'react-router'
-import { getCvStatus } from '../api/cv'
+import { useEffect, useState } from 'react'
+import { getActiveInterview } from '../api/interview'
+import InterviewSession from '../components/interview/InterviewSession'
+import InterviewSetup from '../components/interview/InterviewSetup'
+import { seedFromInterview } from '../components/interview/seed'
+import type { SessionSeed } from '../components/interview/types'
+import { Skeleton } from '../components/ui'
 
-const interviewTypes = [
-  { value: 'backend', label: 'Backend' },
-  { value: 'frontend', label: 'Frontend' },
-  { value: 'fullstack', label: 'Full Stack' },
-  { value: 'devops', label: 'DevOps' },
-  { value: 'system-design', label: 'System Design' },
-  { value: 'hr', label: 'HR' }
-]
-
-const difficulties = [
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
-  { value: 'senior', label: 'Senior' }
-]
-
-
-interface ChatMessage {
-  role: 'ai' | 'user'
-  content: string
+function InterviewSkeleton() {
+  return (
+    <div
+      role="status"
+      aria-label="Müsahibə yoxlanılır"
+      className="mx-auto max-w-3xl space-y-6 px-6 py-10 sm:px-8"
+    >
+      <Skeleton className="h-8 w-48" />
+      <div className="grid grid-cols-3 gap-3">
+        <Skeleton className="h-8" />
+        <Skeleton className="h-8" />
+        <Skeleton className="h-8" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+      </div>
+    </div>
+  )
 }
 
 export default function Interview() {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [type, setType] = useState<string | null>(null)
-  const [difficulty, setDifficulty] = useState<string | null>(null)
-  const [interviewId, setInterviewId] = useState<number | null>(null)
-  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [input, setInput] = useState('')
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [streamingText, setStreamingText] = useState('')
-  const [isStreaming, setIsStreaming] = useState(false)
-  const [isAiSpeaking, setIsAiSpeaking] = useState(false)
-  const { isRecording, startRecording, stopRecording } = useAudioRecorder()
-  const avatarState: 'idle' | 'speaking' | 'listening' = isRecording
-    ? 'listening'
-    : isAiSpeaking
-      ? 'speaking'
-      : 'idle'
-
-  const [isTranscribing, setIsTranscribing] = useState(false)
-  const [useCv, setUseCv] = useState(false)
-  const { data: cvStatus } = useQuery({ queryKey: ['cv-status'], queryFn: getCvStatus })
-
-
-  const handleMicClick = async () => {
-    if (isRecording) {
-      const audioBlob = await stopRecording()
-      setIsTranscribing(true)
-      try {
-        const text = await transcribeAudio(audioBlob)
-        setInput((prev) => (prev ? `${prev} ${text}` : text))
-        setErrorMessage(null)
-      } catch {
-        setErrorMessage('Səsi mətnə çevirmək mümkün olmadı. Yenidən cəhd et.')
-      } finally {
-        setIsTranscribing(false)
-      }
-    } else {
-      try {
-        await startRecording()
-      } catch (err) {
-        setErrorMessage(err instanceof Error ? err.message : 'Mikrofon işə düşmədi.')
-      }
-    }
-  }
+  const [session, setSession] = useState<SessionSeed | null>(null)
+  const [restoring, setRestoring] = useState(true)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    let cancelled = false
 
-  useEffect(() => {
-    const lastMessage = messages[messages.length - 1]
-
-    if (!lastMessage || lastMessage.role !== 'ai') return
-
-    let url: string | null = null
-
-    synthesizeSpeech(lastMessage.content)
-      .then((audioUrl) => {
-        url = audioUrl
-
-        if (audioRef.current) {
-          audioRef.current.src = audioUrl
-          audioRef.current.play().catch(() => {
-          })
-        }
+    getActiveInterview()
+      .then((active) => {
+        if (!cancelled && active) setSession(seedFromInterview(active))
       })
       .catch(() => {
+        // Aktiv müsahibə yoxlanıla bilmədisə, yeni müsahibə ekranı göstərilir
       })
       .finally(() => {
-        if (url) {
-          setTimeout(() => URL.revokeObjectURL(url!), 10000)
-        }
+        if (!cancelled) setRestoring(false)
       })
-  }, [messages])
-
-  useEffect(() => {
-    if (!interviewId) return
-
-    const echo = createEcho()
-    const channel = echo.private(`interview.${interviewId}`)
-
-    channel.listen('.AiResponseChunk', (data: { chunk: string; done: boolean }) => {
-      if (data.done) {
-        setIsStreaming(false)
-        return
-      }
-      setIsStreaming(true)
-      setStreamingText((prev) => prev + data.chunk)
-    })
 
     return () => {
-      echo.leaveChannel(`interview.${interviewId}`)
-      echo.disconnect()
+      cancelled = true
     }
-  }, [interviewId])
-
-  const startMutation = useMutation({
-    mutationFn: () => startInterview(type!, difficulty!, useCv),
-    onSuccess: (data) => {
-      setInterviewId(data.interview.id)
-      setCurrentQuestionId(data.question.id)
-
-      setMessages([{ role: 'ai', content: data.question.content }])
-
-    }
-  })
-
-  const answerMutation = useMutation({
-    mutationFn: (content: string) => submitAnswer(interviewId!, currentQuestionId!, content),
-    onSuccess: (data: { question: Question }) => {
-      setCurrentQuestionId(data.question.id)
-      setMessages((prev) => [...prev, { role: 'ai', content: data.question.content }])
-      setStreamingText('')
-    },
-    onError: () => {
-      setErrorMessage('Cavab göndərilə bilmədi. Yenidən cəhd et.')
-    },
-  })
-
-  const navigate = useNavigate()
-  const completeMutation = useMutation({
-    mutationFn: () => completeInterview(interviewId!),
-    onSuccess: () => {
-      navigate(`/interviews/${interviewId}/report`)
-    },
-    onError: () => {
-      setErrorMessage('Müsahibəni bitirmək mümkün olmadı. Yenidən cəhd et.')
-    },
-  })
-
-  const handleSend = () => {
-    if (!input.trim() || answerMutation.isPending) return
-    setMessages((prev) => [...prev, { role: 'user', content: input }])
-    answerMutation.mutate(input)
-    setInput('')
-  }
-  const [isRestoring, setIsRestoring] = useState(true)
-
-  useEffect(() => {
-    getActiveInterview().then((activeInterview) => {
-      if (activeInterview) {
-        setInterviewId(activeInterview.id)
-        setType(activeInterview.type)
-        setDifficulty(activeInterview.difficulty)
-
-        const restoredMessages: ChatMessage[] = []
-        let lastQuestionId: number | null = null
-
-        activeInterview.questions.forEach((q) => {
-          restoredMessages.push({ role: 'ai', content: q.content })
-          if (q.answer) {
-            restoredMessages.push({ role: 'user', content: q.answer.content })
-          } else {
-            lastQuestionId = q.id
-          }
-        })
-
-        setMessages(restoredMessages)
-        setCurrentQuestionId(lastQuestionId ?? activeInterview.questions.at(-1)?.id ?? null)
-      }
-      setIsRestoring(false)
-    }).catch(() => setIsRestoring(false))
   }, [])
 
+  if (restoring) return <InterviewSkeleton />
+  if (!session) return <InterviewSetup onStarted={setSession} />
 
-  if (isRestoring) {
-    return (
-      <PageTransition>
-        <div className="flex min-h-screen items-center justify-center bg-bg">
-          <p className="text-sm text-text-secondary">Yoxlanılır...</p>
-        </div>
-      </PageTransition>
-    )
-  }
-  // --- Setup ekranı ---
-  if (!interviewId) {
-    return (
-      <PageTransition>
-        <div className="mx-auto max-w-3xl px-8 py-10">
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Yeni müsahibə</h1>
-          <p className="mt-1 text-sm text-text-secondary">Növü və çətinlik səviyyəsini seç.</p>
-
-          <div className="mt-8">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-text-secondary">
-              Müsahibə növü
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {interviewTypes.map((t) => (
-                <button
-                  key={t.value}
-                  onClick={() => setType(t.value)}
-                  className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${type === t.value
-                    ? 'border-accent bg-accent text-white'
-                    : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-text-secondary">
-              Çətinlik
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {difficulties.map((d) => (
-                <button
-                  key={d.value}
-                  onClick={() => setDifficulty(d.value)}
-                  className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${difficulty === d.value
-                    ? 'border-accent bg-accent text-white'
-                    : 'border-border bg-surface text-text-primary hover:border-accent hover:text-accent'
-                  }`}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {cvStatus?.hasCv && (
-            <div className="mt-6 flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="use-cv"
-                checked={useCv}
-                onChange={(e) => setUseCv(e.target.checked)}
-                className="h-4 w-4 rounded border-border accent-accent"
-              />
-
-              <label
-                htmlFor="use-cv"
-                className="text-sm text-text-primary"
-              >
-                Sualları CV-mə uyğunlaşdır
-              </label>
-            </div>
-          )}
-
-          {startMutation.isError && (
-            <p className="mt-4 text-sm text-red-500">
-              Müsahibəni başlatmaq mümkün olmadı. Ollama-nın işlədiyinə əmin ol.
-            </p>
-          )}
-
-          <button
-            onClick={() => startMutation.mutate()}
-            disabled={!type || !difficulty || startMutation.isPending}
-            className="mt-10 w-full rounded-md bg-accent py-3 text-sm font-medium text-white hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {startMutation.isPending ? 'Hazırlanır...' : 'Müsahibəyə başla'}
-          </button>
-        </div>
-      </PageTransition>
-    )
-  }
-
-
-  // --- Chat ekranı ---
-  return (
-    <PageTransition>
-      <div className="mx-auto flex h-[calc(100vh-2rem)] max-w-3xl flex-col px-8 py-6">
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <div>
-            <h1 className="font-display text-lg font-semibold tracking-tight">
-              {interviewTypes.find((t) => t.value === type)?.label} müsahibəsi
-            </h1>
-            <p className="text-xs text-text-secondary">
-              {difficulties.find((d) => d.value === difficulty)?.label} səviyyə
-            </p>
-          </div>
-
-
-          <div className="flex items-center gap-6">
-            <AvatarOrb state={avatarState} />
-            <button
-              onClick={() => completeMutation.mutate()}
-              disabled={completeMutation.isPending}
-              className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {completeMutation.isPending ? 'Qiymətləndirilir...' : 'Müsahibəni bitir'}
-            </button>
-          </div>
-        </div>
-
-        <div className="flex-1 space-y-4 overflow-y-auto py-6">
-          {messages.map((msg, i) => (
-            <ChatBubble key={i} role={msg.role} content={msg.content} />
-          ))}
-          {isStreaming && streamingText && <ChatBubble role="ai" content={streamingText} />}
-          {answerMutation.isPending && !isStreaming && <TypingIndicator />}
-          <div ref={bottomRef} />
-        </div>
-
-        {errorMessage && (
-          <p className="mb-2 text-sm text-red-500">{errorMessage}</p>
-        )}
-        <div className="flex gap-2 border-t border-border pt-4">
-          <MicButton
-            isRecording={isRecording}
-            isProcessing={isTranscribing}
-            onClick={handleMicClick}
-          />
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                handleSend()
-              }
-            }}
-            placeholder={isTranscribing ? 'Mətnə çevrilir...' : 'Cavabını yaz və ya danış...'}
-            rows={2}
-            className="flex-1 resize-none rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || answerMutation.isPending}
-            className="rounded-md bg-accent px-5 text-sm font-medium text-white hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Göndər
-          </button>
-        </div>
-      </div>
-      <audio ref={audioRef}
-             className="hidden"
-             onPlay={() => setIsAiSpeaking(true)}
-             onPause={() => setIsAiSpeaking(false)}
-             onEnded={() => setIsAiSpeaking(false)} />
-    </PageTransition>
-  )
+  return <InterviewSession key={session.interviewId} seed={session} />
 }
