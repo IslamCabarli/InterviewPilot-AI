@@ -6,7 +6,6 @@ import AuthLayout from '../components/AuthLayout'
 import { Button, Input } from '../components/ui'
 import { useRegister } from '../auth/queries'
 import { getAuthErrorMessage } from '../lib/errors'
-import { registerSchema, type RegisterInput } from '../lib/validation'
 
 export default function Register() {
   const navigate = useNavigate()

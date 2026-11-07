@@ -15,32 +15,38 @@ describe('Register', () => {
   it('renders all registration fields', () => {
     renderWithProviders(<Register />)
 
-    expect(screen.getByPlaceholderText('Ad Soyad')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Şifrə')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Şifrəni təsdiqlə')).toBeInTheDocument()
+    expect(screen.getByLabelText('Ad Soyad')).toBeInTheDocument()
+    expect(screen.getByLabelText('Email')).toBeInTheDocument()
+    expect(screen.getByLabelText('Şifrə')).toBeInTheDocument()
+    expect(screen.getByLabelText('Şifrəni təsdiqlə')).toBeInTheDocument()
   })
 
   it('shows an error when passwords do not match', async () => {
     const user = userEvent.setup()
     renderWithProviders(<Register />)
 
-    await user.type(screen.getByPlaceholderText('Ad Soyad'), 'Test User')
-    await user.type(screen.getByPlaceholderText('Email'), 'test@example.com')
-    await user.type(screen.getByPlaceholderText('Şifrə'), 'password123')
-    await user.type(screen.getByPlaceholderText('Şifrəni təsdiqlə'), 'different123')
-    await user.click(screen.getByRole('button', { name: /qeydiyyatdan keç/i }))
+    await user.type(screen.getByLabelText('Ad Soyad'), 'Test User')
+    await user.type(screen.getByLabelText('Email'), 'test@example.com')
+    await user.type(screen.getByLabelText('Şifrə'), 'password123')
+    await user.type(screen.getByLabelText('Şifrəni təsdiqlə'), 'different123')
+    await user.click(screen.getByRole('button', { name: 'Qeydiyyatdan keç' }))
 
-    expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument()
+    expect(await screen.findByText('Şifrələr uyğun gəlmir')).toBeInTheDocument()
   })
 
   it('shows an error for a short password', async () => {
     const user = userEvent.setup()
     renderWithProviders(<Register />)
 
-    await user.type(screen.getByPlaceholderText('Şifrə'), 'short')
-    await user.click(screen.getByRole('button', { name: /qeydiyyatdan keç/i }))
+    await user.type(screen.getByLabelText('Şifrə'), 'short')
+    await user.click(screen.getByRole('button', { name: 'Qeydiyyatdan keç' }))
 
-    expect(await screen.findByText(/at least 8 characters/i)).toBeInTheDocument()
+    expect(await screen.findByText('Şifrə ən azı 8 simvol olmalıdır')).toBeInTheDocument()
+  })
+
+  it('links to login', () => {
+    renderWithProviders(<Register />)
+
+    expect(screen.getByRole('link', { name: 'Daxil ol' })).toHaveAttribute('href', '/login')
   })
 })

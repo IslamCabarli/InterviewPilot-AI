@@ -2,20 +2,20 @@ import { z } from 'zod'
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, 'Name must be at least 2 characters long'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters long'),
-    password_confirmation: z.string().min(8, 'Password must be same'),
+    name: z.string().trim().min(2, 'Ad ən azı 2 simvol olmalıdır'),
+    email: z.string().trim().email('Düzgün email daxil edin'),
+    password: z.string().min(8, 'Şifrə ən azı 8 simvol olmalıdır'),
+    password_confirmation: z.string().min(1, 'Şifrəni təsdiqləyin'),
   })
   .refine((data) => data.password === data.password_confirmation, {
-    message: 'Passwords do not match',
+    message: 'Şifrələr uyğun gəlmir',
     path: ['password_confirmation'],
   })
 
-export const LoginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+export const loginSchema = z.object({
+  email: z.string().trim().email('Düzgün email daxil edin'),
+  password: z.string().min(1, 'Şifrə tələb olunur'),
 })
 
 export type RegisterInput = z.infer<typeof registerSchema>
-export type LoginInput = z.infer<typeof LoginSchema>
+export type LoginInput = z.infer<typeof loginSchema>
