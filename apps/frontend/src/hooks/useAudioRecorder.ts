@@ -1,68 +1,44 @@
-import { useState, useRef, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+function stopTracks(stream: MediaStream | null | undefined) {
+  stream?.getTracks().forEach((track) => track.stop())
+}
 
 export function useAudioRecorder() {
   const [isRecording, setIsRecording] = useState(false)
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const [stream, setStream] = useState<MediaStream | null>(null)
+  const recorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
 
   const startRecording = useCallback(async () => {
-    if (isRecording) return
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    const recorder = new MediaRecorder(mediaStream)
+    chunksRef.current = []
 
-    if (!window.MediaRecorder) {
-      throw new Error('MediaRecorder is not supported in this browser.')
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunksRef.current.push(event.data)
     }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      })
-
-      const recorder = new MediaRecorder(stream)
-
-      chunksRef.current = []
-
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data)
-        }
-      }
-
-      mediaRecorderRef.current = recorder
-      recorder.start()
-
-      setIsRecording(true)
-    } catch {
-      throw new Error('Microphone permission denied.')
-    }
-  }, [isRecording])
+    recorder.start()
+    recorderRef.current = recorder
+    setStream(mediaStream)
+    setIsRecording(true)
+  }, [])
 
   const stopRecording = useCallback((): Promise<Blob> => {
     return new Promise((resolve, reject) => {
-      const recorder = mediaRecorderRef.current
-
+      const recorder = recorderRef.current
       if (!recorder) {
-        reject(new Error('No active recording found.'))
-        return
-      }
-
-      if (recorder.state === 'inactive') {
-        reject(new Error('Recorder is already stopped.'))
+        reject(new Error('Aktiv səs yazısı yoxdur'))
         return
       }
 
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, {
-          type: recorder.mimeType || 'audio/webm',
-        })
-
-        recorder.stream.getTracks().forEach((track) => track.stop())
-
-        chunksRef.current = []
-        mediaRecorderRef.current = null
-
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
+        stopTracks(recorder.stream)
+        recorderRef.current = null
+        setStream(null)
         setIsRecording(false)
-
         resolve(blob)
       }
 
@@ -70,9 +46,17 @@ export function useAudioRecorder() {
     })
   }, [])
 
-  return {
-    isRecording,
-    startRecording,
-    stopRecording,
-  }
+  useEffect(() => {
+    return () => {
+      const recorder = recorderRef.current
+      if (!recorder) return
+
+      recorder.onstop = null
+      if (recorder.state !== 'inactive') recorder.stop()
+      stopTracks(recorder.stream)
+      recorderRef.current = null
+    }
+  }, [])
+
+  return { isRecording, stream, startRecording, stopRecording }
 }
