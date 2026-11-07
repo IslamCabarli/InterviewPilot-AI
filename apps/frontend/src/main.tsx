@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { MotionConfig } from 'framer-motion'
 import { BrowserRouter } from 'react-router'
 import { queryClient } from './app/queryClient'
 import { AuthProvider } from './auth/AuthProvider'
@@ -16,8 +17,10 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <AuthProvider>
           <ErrorBoundary>
-            <App />
-            <ToastViewport />
+            <MotionConfig reducedMotion="user">
+              <App />
+              <ToastViewport />
+            </MotionConfig>
           </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
