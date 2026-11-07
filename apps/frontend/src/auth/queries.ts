@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authKeys } from './queryKeys'
 import { getMeRequest, loginRequest, registerRequest, logoutRequest } from '../api/auth'
 import { useAuthStore } from './authStore'
-import type { LoginInput, RegisterInput } from '../lib/validation'
 
 export function useCurrentUser() {
   const token = useAuthStore((s) => s.token)
