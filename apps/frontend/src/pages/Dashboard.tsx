@@ -78,7 +78,7 @@ export default function Dashboard() {
 
   return (
     <PageTransition>
-      <div className="mx-auto max-w-5xl px-8 py-10">
+      <div className="mx-auto max-w-5xl px-6 py-8 sm:px-8 sm:py-10">
 
         {/* Header */}
         <div className="flex items-start justify-between">

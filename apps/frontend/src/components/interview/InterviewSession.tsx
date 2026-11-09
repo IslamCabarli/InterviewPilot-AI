@@ -162,8 +162,9 @@ export default function InterviewSession({ seed }: { seed: SessionSeed }) {
   }
 
   return (
-    <PageTransition>
-      <div className="mx-auto flex h-[calc(100dvh-2rem)] max-w-2xl flex-col px-4 sm:px-8">
+    <PageTransition className="h-full">
+      <div className="mx-auto flex h-full max-w-2xl flex-col px-4 sm:px-8">
+
         <header className="flex items-center justify-between gap-3 border-b border-border py-4">
           <div className="min-w-0">
             <h1 className="truncate font-display text-lg font-semibold tracking-tight">
