@@ -1,174 +1,188 @@
-import { useState, useRef } from 'react'
-import PageTransition from '../components/PageTransition'
-import { useAuth } from '../auth/useAuth'
+import { useState, type DragEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { uploadCv, getCvStatus, deleteCv } from '../api/cv'
+import { FileText, Loader2, Trash2, Upload } from 'lucide-react'
+import { deleteCv, getCvStatus, uploadCv } from '../api/cv'
+import { useAuth } from '../auth/useAuth'
+import { PageContainer, PageHeader } from '../components/shell/Page'
+import { Badge, Button, Card, Eyebrow, Modal, Skeleton } from '../components/ui'
+import { cn } from '../lib/cn'
+import { getApiErrorMessage } from '../lib/errors'
+import { getInitials } from '../lib/initials'
+import { toast } from '../lib/toast'
+
+const MAX_CV_BYTES = 5 * 1024 * 1024
+
+function isPdf(file: File) {
+  return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return date.toLocaleDateString('az-AZ', { day: 'numeric', month: 'long', year: 'numeric' })
+}
 
 export default function Profile() {
   const { user } = useAuth()
-
-  const [fileName, setFileName] = useState<string | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-
-  const inputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
+  const [isDragging, setIsDragging] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
-  const { data: cvStatus } = useQuery({
-    queryKey: ['cv-status'],
-    queryFn: getCvStatus,
-  })
+  const { data: cv, isLoading } = useQuery({ queryKey: ['cv-status'], queryFn: getCvStatus })
+  const uploadedOn = formatDate(cv?.uploadedAt)
 
   const uploadMutation = useMutation({
-    mutationFn: uploadCv,
+    mutationFn: (file: File) => uploadCv(file),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cv-status'] })
+      void queryClient.invalidateQueries({ queryKey: ['cv-status'] })
+      toast.success('CV yükləndi. Suallar indi təcrübənə uyğunlaşdırıla bilər.')
+    },
+    onError: (error) => {
+      toast.error(
+        getApiErrorMessage(error, 'CV yüklənə bilmədi. Faylın PDF və 5 MB-dan kiçik olduğunu yoxla.'),
+      )
     },
   })
 
   const deleteMutation = useMutation({
-    mutationFn: deleteCv,
+    mutationFn: () => deleteCv(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cv-status'] })
-      setFileName(null)
+      void queryClient.invalidateQueries({ queryKey: ['cv-status'] })
+      setConfirmOpen(false)
+      toast.success('CV silindi.')
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'CV silinə bilmədi. Yenidən cəhd et.'))
     },
   })
 
   const handleFile = (file: File | undefined) => {
-    if (file && file.type === 'application/pdf') {
-      setFileName(file.name)
-      uploadMutation.mutate(file)
+    if (!file) return
+
+    if (!isPdf(file)) {
+      toast.error('Yalnız PDF faylı yükləmək olar.')
+      return
     }
+    if (file.size > MAX_CV_BYTES) {
+      toast.error('Fayl 5 MB-dan böyük ola bilməz.')
+      return
+    }
+
+    uploadMutation.mutate(file)
   }
 
+  const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault()
+    setIsDragging(false)
+    handleFile(event.dataTransfer.files?.[0])
+  }
+
+  const uploading = uploadMutation.isPending
+
   return (
-    <PageTransition>
-      <div className="mx-auto max-w-3xl px-8 py-10">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">
-          Profil
-        </h1>
+    <PageContainer size="sm">
+      <PageHeader title="Profil" description="Hesab məlumatların və CV-n." />
 
-        <div className="mt-8 rounded-lg border border-border bg-surface p-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-            Şəxsi məlumat
-          </p>
-
-          <div className="mt-4 space-y-3">
-            <div>
-              <p className="text-xs text-text-secondary">Ad Soyad</p>
-              <p className="text-sm font-medium">{user?.name}</p>
-            </div>
-
-            <div>
-              <p className="text-xs text-text-secondary">Email</p>
-              <p className="text-sm font-medium">{user?.email}</p>
-            </div>
+      <div className="mt-8 space-y-6">
+        <Card className="flex items-center gap-4">
+          <div
+            aria-hidden
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-surface-muted font-display text-base font-semibold"
+          >
+            {getInitials(user?.name)}
           </div>
-        </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{user?.name}</p>
+            <p className="mt-0.5 truncate text-sm text-text-secondary">{user?.email}</p>
+          </div>
+        </Card>
 
-        <div className="mt-6 rounded-lg border border-border bg-surface p-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-            CV
+        <Card>
+          <div className="flex items-center justify-between gap-3">
+            <Eyebrow>CV</Eyebrow>
+            {cv?.hasCv && <Badge tone="positive">Aktiv</Badge>}
+          </div>
+          <p className="mt-2 text-sm text-text-secondary">
+            CV-ni yüklə, AI müsahibə sualları təcrübənə və layihələrinə uyğun olsun.
           </p>
 
-          <p className="mt-1 text-sm text-text-secondary">
-            CV-ni yüklə, AI sualları ona uyğunlaşdırsın.
-          </p>
-
-          {/* Mövcud CV */}
-          {cvStatus?.hasCv && (
-            <div className="mt-4 flex items-center justify-between rounded-md border border-positive/30 bg-positive/5 px-4 py-3">
-              <div>
-                <p className="text-sm text-text-primary">
-                  CV yüklənib ✓
-                </p>
-
-                {cvStatus.uploadedAt && (
-                  <p className="mt-1 text-xs text-text-secondary">
-                    {new Date(cvStatus.uploadedAt).toLocaleDateString()}
-                  </p>
-                )}
+          {isLoading ? (
+            <Skeleton className="mt-4 h-14 w-full" />
+          ) : (
+            cv?.hasCv && (
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-border bg-surface-muted px-4 py-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <FileText className="h-4 w-4 shrink-0 text-accent" aria-hidden />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">CV yüklənib</p>
+                    <p className="truncate text-xs text-text-secondary">
+                      {uploadedOn ? `Yükləmə tarixi: ${uploadedOn}` : 'Suallar CV-yə uyğunlaşdırıla bilər'}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(true)}>
+                  <Trash2 className="h-4 w-4" aria-hidden />
+                  Sil
+                </Button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => deleteMutation.mutate()}
-                disabled={deleteMutation.isPending}
-                className="text-xs font-medium text-red-500 hover:underline disabled:opacity-50"
-              >
-                {deleteMutation.isPending ? 'Silinir...' : 'Sil'}
-              </button>
-            </div>
+            )
           )}
 
-          {/* Upload area */}
-          <div
-            onDragOver={(e) => {
-              e.preventDefault()
+          <label
+            onDragOver={(event) => {
+              event.preventDefault()
               setIsDragging(true)
             }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setIsDragging(false)
-              handleFile(e.dataTransfer.files?.[0])
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsDragging(false)
             }}
-            onClick={() => inputRef.current?.click()}
-            className={`mt-4 flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed py-10 transition-colors ${
-              isDragging
-                ? 'border-accent bg-accent/5'
-                : 'border-border'
-            }`}
+            onDrop={handleDrop}
+            className={cn(
+              'mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed px-4 py-10 text-center transition-colors',
+              'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent',
+              isDragging ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50',
+              uploading && 'pointer-events-none opacity-60',
+            )}
           >
             <input
-              ref={inputRef}
               type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={(e) => handleFile(e.target.files?.[0])}
+              accept="application/pdf,.pdf"
+              aria-label="CV faylı (PDF)"
+              className="sr-only"
+              disabled={uploading}
+              onChange={(event) => {
+                handleFile(event.target.files?.[0])
+                event.target.value = ''
+              }}
             />
-
-            {uploadMutation.isPending ? (
-              <p className="text-sm text-text-secondary">
-                Yüklənir...
-              </p>
-            ) : fileName ? (
-              <>
-                <p className="font-mono text-sm text-text-primary">
-                  {fileName}
-                </p>
-
-                <p className="mt-1 text-xs text-text-secondary">
-                  Dəyişmək üçün klikləyin
-                </p>
-              </>
+            {uploading ? (
+              <Loader2 className="h-5 w-5 animate-spin text-text-secondary" aria-hidden />
             ) : (
-              <>
-                <p className="text-sm font-medium text-text-primary">
-                  PDF-i buraya sürüklə
-                </p>
-
-                <p className="mt-1 text-xs text-text-secondary">
-                  və ya klikləyib seç
-                </p>
-              </>
+              <Upload className="h-5 w-5 text-text-secondary" aria-hidden />
             )}
-          </div>
-
-          {/* Upload success */}
-          {uploadMutation.isSuccess && (
-            <p className="mt-3 text-sm text-positive">
-              CV uğurla yükləndi.
-            </p>
-          )}
-
-          {/* Upload error */}
-          {uploadMutation.isError && (
-            <p className="mt-3 text-sm text-red-500">
-              CV yüklənərkən xəta baş verdi.
-            </p>
-          )}
-        </div>
+            <span className="text-sm font-medium">
+              {uploading ? 'Yüklənir...' : cv?.hasCv ? 'Yeni PDF ilə əvəz et' : 'PDF-i buraya sürüklə'}
+            </span>
+            <span className="text-xs text-text-secondary">və ya klikləyib seç · maksimum 5 MB</span>
+          </label>
+        </Card>
       </div>
-    </PageTransition>
+
+      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="CV-ni silmək?">
+        <p className="text-sm leading-relaxed text-text-secondary">
+          CV silinəcək və suallar artıq təcrübənə uyğunlaşdırılmayacaq. İstədiyin vaxt yenisini yükləyə bilərsən.
+        </p>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setConfirmOpen(false)} disabled={deleteMutation.isPending}>
+            Ləğv et
+          </Button>
+          <Button variant="danger" onClick={() => deleteMutation.mutate()} loading={deleteMutation.isPending}>
+            Sil
+          </Button>
+        </div>
+      </Modal>
+    </PageContainer>
   )
 }
