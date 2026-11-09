@@ -1,20 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { synthesizeSpeech } from '../api/speech'
-
-const STORAGE_KEY = 'voice-output'
-
-function readEnabled(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) !== 'off'
-  } catch {
-    return true
-  }
-}
+import { useVoicePreference } from '../lib/voicePreference'
 
 export function useSpeech() {
-  const [enabled, setEnabled] = useState(readEnabled)
+  const enabled = useVoicePreference((state) => state.enabled)
+  const setEnabled = useVoicePreference((state) => state.setEnabled)
   const [isSpeaking, setIsSpeaking] = useState(false)
-  const enabledRef = useRef(enabled)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const urlRef = useRef<string | null>(null)
   const requestRef = useRef(0)
@@ -49,7 +40,7 @@ export function useSpeech() {
 
   const speak = useCallback(
     async (text: string) => {
-      if (!enabledRef.current || !text.trim()) return
+      if (!useVoicePreference.getState().enabled || !text.trim()) return
 
       teardown()
       const requestId = requestRef.current
@@ -79,18 +70,10 @@ export function useSpeech() {
   }, [teardown])
 
   const toggle = useCallback(() => {
-    const next = !enabledRef.current
-    enabledRef.current = next
+    const next = !useVoicePreference.getState().enabled
     setEnabled(next)
-
-    try {
-      localStorage.setItem(STORAGE_KEY, next ? 'on' : 'off')
-    } catch {
-      /* seçim yadda saxlanmadı, sessiya ərzində işləyir */
-    }
-
     if (!next) stop()
-  }, [stop])
+  }, [setEnabled, stop])
 
   useEffect(() => {
     return () => teardown()
