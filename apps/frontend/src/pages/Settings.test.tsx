@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { useThemeStore } from '../theme/themeStore'
 import { useVoicePreference } from '../lib/voicePreference'
-import { renderWithProviders, screen } from '../test/render'
+import {act, renderWithProviders, screen } from '../test/render'
 import Settings from './Settings'
 
 vi.mock('../auth/useAuth', () => ({
@@ -20,7 +20,7 @@ describe('Settings', () => {
   })
 
   afterEach(() => {
-    useThemeStore.getState().setTheme('light')
+    act(() => useThemeStore.getState().setTheme('light'))
   })
 
   it('shows the account details', () => {
