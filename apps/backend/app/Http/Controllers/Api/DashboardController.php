@@ -10,6 +10,13 @@ use OpenApi\Attributes as OA;
 
 class DashboardController extends Controller
 {
+    private const SCORE_MAX = [
+        'technical' => 25,
+        'communication' => 20,
+        'confidence' => 15,
+        'problem_solving' => 20,
+        'best_practices' => 20,
+    ];
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
     ) {}
@@ -139,6 +146,7 @@ class DashboardController extends Controller
             $result[] = [
                 'skill' => $labels[$key] ?? $key,
                 'value' => (int) round($sum / $counts[$key]),
+                'max' => self::SCORE_MAX[$key] ?? 25,
             ];
         }
 
