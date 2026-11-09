@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { getDashboardStats, type DashboardStats } from '../api/dashboard'
 import { getGamificationStats, type GamificationStats } from '../api/gamification'
 import { getActiveInterview } from '../api/interview'
-import { renderWithProviders, screen, within } from '../test/render'
+import { renderWithProviders, screen } from '../test/render'
 import Dashboard from './Dashboard'
 
 vi.mock('../api/dashboard', () => ({ getDashboardStats: vi.fn() }))
@@ -66,11 +66,11 @@ describe('Dashboard', () => {
     renderWithProviders(<Dashboard />)
 
     expect(await screen.findByRole('heading', { name: 'Salam, Islam' })).toBeInTheDocument()
-    expect(screen.getByText(/3 gündür ardıcıl təcrübə/)).toBeInTheDocument()
-    expect(within(screen.getByRole('group', { name: 'Ortalama bal' })).getByText('82')).toBeInTheDocument()
+    expect(await screen.findByText(/3 gündür ardıcıl təcrübə/)).toBeInTheDocument()
+
     expect(screen.getByRole('group', { name: 'Ortalama bal' })).toHaveTextContent('82/100')
     expect(screen.getByRole('group', { name: 'Tamamlanmış' })).toHaveTextContent('4')
-    expect(screen.getByText('Səviyyə 2')).toBeInTheDocument()
+    expect(await screen.findByText('Səviyyə 2')).toBeInTheDocument()
   })
 
   it('shows the charts and badges once there is data', async () => {
