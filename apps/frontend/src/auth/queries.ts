@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { authKeys } from './queryKeys'
-import { getMeRequest, loginRequest, registerRequest, logoutRequest } from '../api/auth'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getMeRequest, loginRequest, logoutRequest, registerRequest } from '../api/auth'
 import { useAuthStore } from './authStore'
+import { authKeys } from './queryKeys'
 
 export function useCurrentUser() {
   const token = useAuthStore((s) => s.token)
@@ -22,6 +22,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: loginRequest,
     onSuccess: (data) => {
+      queryClient.removeQueries()
       setToken(data.token)
       queryClient.setQueryData(authKeys.me, data.user)
     },
@@ -35,6 +36,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: registerRequest,
     onSuccess: (data) => {
+      queryClient.removeQueries()
       setToken(data.token)
       queryClient.setQueryData(authKeys.me, data.user)
     },
@@ -48,10 +50,9 @@ export function useLogout() {
   return useMutation({
     mutationFn: logoutRequest,
     onSettled: () => {
-      // onSettled istifadə edirik ki, logout sorğusu şəbəkə xətası versə belə
-      // (məs. token onsuz da etibarsızdır) client-side state hər halda təmizlənsin.
+      // Server sorğusu uğursuz olsa belə (məs. token onsuz da etibarsızdır), lokal vəziyyət təmizlənir
       clearToken()
-      queryClient.removeQueries({ queryKey: authKeys.me })
+      queryClient.removeQueries()
     },
   })
 }
