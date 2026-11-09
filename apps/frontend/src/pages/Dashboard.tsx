@@ -1,329 +1,110 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  Radar,
-} from 'recharts'
-import { useAuth } from '../auth/useAuth'
+import { Mic } from 'lucide-react'
+import { Link } from 'react-router'
+import { getDashboardStats } from '../api/dashboard'
 import { getGamificationStats } from '../api/gamification'
-import BadgeCard from '../components/BadgeCard'
-import PageTransition from '../components/PageTransition'
-import { getDashboardStats, getRecentInterviews  } from '../api/dashboard'
-import { useNavigate } from 'react-router'
 import { getActiveInterview } from '../api/interview'
-
-
-function StatCard({
-  label,
-  value,
-  unit,
-}: {
-  label: string
-  value: number
-  unit?: string
-}) {
-  return (
-    <div className="rounded-lg border border-border bg-surface p-5">
-      <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-        {label}
-      </p>
-
-      <p className="mt-2 font-mono text-3xl font-medium text-text-primary">
-        {value}
-        {unit && (
-          <span className="ml-1 text-base text-text-secondary">
-            {unit}
-          </span>
-        )}
-      </p>
-    </div>
-  )
-}
+import { useAuth } from '../auth/useAuth'
+import BadgesCard from '../components/dashboard/BadgesCard'
+import { LevelProgress, LevelProgressSkeleton } from '../components/dashboard/LevelProgress'
+import ResumeBanner from '../components/dashboard/ResumeBanner'
+import SectionError from '../components/dashboard/SectionError'
+import { BadgesSkeleton, ChartsSkeleton, StatsSkeleton } from '../components/dashboard/skeletons'
+import SkillRadarChart from '../components/dashboard/SkillRadarChart'
+import StatCard from '../components/dashboard/StatCard'
+import WeeklyProgressChart from '../components/dashboard/WeeklyProgressChart'
+import { PageContainer, PageHeader } from '../components/shell/Page'
+import { Card, EmptyState } from '../components/ui'
+import { buttonStyles } from '../components/ui/buttonStyles'
 
 export default function Dashboard() {
-
-
   const { user } = useAuth()
-  const navigate = useNavigate()
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['dashboard-stats'],
-    queryFn: getDashboardStats,
-  })
+  const stats = useQuery({ queryKey: ['dashboard-stats'], queryFn: getDashboardStats })
+  const gamification = useQuery({ queryKey: ['gamification-stats'], queryFn: getGamificationStats })
+  const active = useQuery({ queryKey: ['active-interview'], queryFn: getActiveInterview })
 
-  const { data: gamification } = useQuery({
-    queryKey: ['gamification-stats'],
-    queryFn: getGamificationStats,
-  })
+  const firstName = user?.name?.trim().split(/\s+/)[0]
+  const hasData = (stats.data?.completedInterviews ?? 0) > 0
+  const streak = stats.data?.weeklyStreak ?? 0
 
-  const { data: recentInterviews } = useQuery({
-    queryKey: ['recent-interviews'],
-    queryFn: getRecentInterviews,
-  })
-
-  const { data: activeInterview } = useQuery({
-    queryKey: ['active-interview'],
-    queryFn: getActiveInterview,
-  })
-
-  const hasData = (data?.completedInterviews ?? 0) > 0
+  const levelProgress = gamification.data ? (
+    <LevelProgress
+      level={gamification.data.level}
+      xpIntoLevel={gamification.data.xpIntoLevel}
+      xpForNextLevel={gamification.data.xpForNextLevel}
+    />
+  ) : gamification.isPending ? (
+    <LevelProgressSkeleton />
+  ) : null
 
   return (
-    <PageTransition>
-      <div className="mx-auto max-w-5xl px-6 py-8 sm:px-8 sm:py-10">
+    <PageContainer>
+      <PageHeader
+        title={firstName ? `Salam, ${firstName}` : 'Salam'}
+        description={
+          streak > 0 ? `${streak} gündür ardıcıl təcrübə edirsən. Belə davam et.` : 'Bugünkü tərəqqinə nəzər sal.'
+        }
+        actions={levelProgress}
+      />
 
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">
-              Xoş gəldin, {user?.name}
-            </h1>
+      <div className="mt-8 space-y-6">
+        {active.data && <ResumeBanner interview={active.data} />}
 
-            <p className="mt-1 text-sm text-text-secondary">
-              Bugünkü tərəqqinə nəzər sal.
-            </p>
-          </div>
+        {stats.isPending ? (
+          <>
+            <StatsSkeleton />
+            <ChartsSkeleton />
+          </>
+        ) : stats.isError ? (
+          <SectionError
+            message="Statistikanı yükləmək mümkün olmadı."
+            onRetry={() => void stats.refetch()}
+            retrying={stats.isFetching}
+          />
+        ) : (
+          <>
+            <section aria-label="Statistika" className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <StatCard label="Bugünkü təcrübə" value={stats.data.todayPractice} />
+              <StatCard label="Ortalama bal" value={stats.data.averageScore} unit="/100" />
+              <StatCard label="Tamamlanmış" value={stats.data.completedInterviews} />
+              <StatCard label="Seriya" value={stats.data.weeklyStreak} unit="gün" />
+            </section>
 
-          {gamification && (
-            <div className="text-right">
-              <p className="font-mono text-2xl font-medium text-text-primary">
-                Səviyyə {gamification.level}
-              </p>
-
-              <div className="mt-1 h-1 w-32 rounded-full bg-border">
-                <div
-                  className="h-1 rounded-full bg-accent"
-                  style={{
-                    width: `${(gamification.xpIntoLevel /
-                        gamification.xpForNextLevel) *
-                      100
-                      }%`,
-                  }}
+            {hasData ? (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <WeeklyProgressChart data={stats.data.weeklyProgress} />
+                <SkillRadarChart data={stats.data.skillRadar} />
+              </div>
+            ) : (
+              <Card>
+                <EmptyState
+                  icon={Mic}
+                  title="Hələ müsahibə keçirməmisən"
+                  description="İlk müsahibəni tamamla: statistikan, bal qrafikin və bacarıq xəritən burada görünəcək."
+                  action={
+                    <Link to="/interview" className={buttonStyles()}>
+                      İlk müsahibəni başlat
+                    </Link>
+                  }
                 />
-              </div>
+              </Card>
+            )}
+          </>
+        )}
 
-              <p className="mt-1 font-mono text-[10px] text-text-secondary">
-                {gamification.xpIntoLevel}/{gamification.xpForNextLevel} XP
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Stats */}
-        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard
-            label="Bugünkü təcrübə"
-            value={data?.todayPractice ?? 0}
+        {gamification.isPending ? (
+          <BadgesSkeleton />
+        ) : gamification.isError ? (
+          <SectionError
+            message="Nailiyyətləri yükləmək mümkün olmadı."
+            onRetry={() => void gamification.refetch()}
+            retrying={gamification.isFetching}
           />
-
-          <StatCard
-            label="Ortalama bal"
-            value={data?.averageScore ?? 0}
-            unit="/100"
-          />
-
-          <StatCard
-            label="Tamamlanmış"
-            value={data?.completedInterviews ?? 0}
-          />
-
-          <StatCard
-            label="Seriya"
-            value={data?.weeklyStreak ?? 0}
-            unit="gün"
-          />
-        </div>
-
-        {activeInterview && (
-          <div className="mt-6 flex items-center justify-between rounded-lg border border-accent/30 bg-accent/5 p-4">
-            <p className="text-sm text-text-primary">Bitirilməmiş bir müsahibən var.</p>
-            <button
-              onClick={() => navigate('/interview')}
-              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90"
-            >
-              Davam et
-            </button>
-          </div>
+        ) : (
+          <BadgesCard badges={gamification.data.badges} />
         )}
-
-        {/* Empty state */}
-        {!isLoading && !hasData && (
-          <div className="mt-8 rounded-lg border border-border bg-surface p-8 text-center">
-            <p className="text-sm text-text-secondary">
-              Hələ heç bir müsahibə keçirməmisən.
-            </p>
-
-            <button
-              onClick={() => navigate('/interview')}
-              className="mt-4 rounded-md bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent/90"
-            >
-              İlk müsahibəni başlat
-            </button>
-          </div>
-        )}
-
-        {/* Charts */}
-        {hasData && (
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-
-            {/* Weekly progress */}
-            <div className="rounded-lg border border-border bg-surface p-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-                Həftəlik tərəqqi
-              </p>
-
-              <div className="mt-4 h-52">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data?.weeklyProgress}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#E4E4E7"
-                    />
-
-                    <XAxis
-                      dataKey="date"
-                      tick={{
-                        fontSize: 12,
-                        fill: '#6B6F76',
-                      }}
-                      axisLine={{
-                        stroke: '#E4E4E7',
-                      }}
-                    />
-
-                    <YAxis
-                      domain={[0, 100]}
-                      tick={{
-                        fontSize: 12,
-                        fill: '#6B6F76',
-                      }}
-                      axisLine={{
-                        stroke: '#E4E4E7',
-                      }}
-                    />
-
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: 6,
-                        border: '1px solid #E4E4E7',
-                        fontSize: 12,
-                      }}
-                    />
-
-                    <Line
-                      type="monotone"
-                      dataKey="score"
-                      stroke="#2554F6"
-                      strokeWidth={2}
-                      dot={{
-                        r: 3,
-                        fill: '#2554F6',
-                      }}
-                      connectNulls
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Skill radar */}
-            <div className="rounded-lg border border-border bg-surface p-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-                Bacarıq xəritəsi
-              </p>
-
-              <div className="mt-4 h-52">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={data?.skillRadar}>
-                    <PolarGrid stroke="#E4E4E7" />
-
-                    <PolarAngleAxis
-                      dataKey="skill"
-                      tick={{
-                        fontSize: 11,
-                        fill: '#6B6F76',
-                      }}
-                    />
-
-                    <Radar
-                      dataKey="value"
-                      stroke="#2554F6"
-                      fill="#2554F6"
-                      fillOpacity={0.15}
-                      strokeWidth={2}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Badges */}
-        {gamification && (
-          <div className="mt-6 rounded-lg border border-border bg-surface p-6">
-            <p className="mb-4 text-xs font-medium uppercase tracking-wide text-text-secondary">
-              Nailiyyətlər
-            </p>
-
-            <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
-              {gamification.badges.map((badge) => (
-                <BadgeCard
-                  key={badge.key}
-                  badge={badge}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-        {recentInterviews && recentInterviews.length > 0 && (
-          <div className="mt-6 rounded-lg border border-border bg-surface p-6">
-            <p className="mb-4 text-xs font-medium uppercase tracking-wide text-text-secondary">
-              Son müsahibələr
-            </p>
-            <div className="space-y-2">
-              {recentInterviews.map((interview) => (
-                <button
-                  key={interview.id}
-                  onClick={() => navigate(`/interviews/${interview.id}/report`)}
-                  className="flex w-full items-center justify-between rounded-md border border-border px-4 py-3 text-left hover:border-accent"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-text-primary">
-                      {interview.type} · {interview.difficulty}
-                    </p>
-                    <p className="text-xs text-text-secondary">
-                      {new Date(interview.completed_at).toLocaleDateString('az-AZ')}
-                    </p>
-                  </div>
-                  <p className="font-mono text-lg font-medium text-text-primary">
-                    {interview.overall_score ?? '—'}
-                    <span className="text-xs text-text-secondary">/100</span>
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {/* New interview */}
-        <div className="mt-6 rounded-lg border border-border bg-surface p-6 text-center">
-          <button
-            onClick={() => navigate('/interview')}
-            className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent/90"
-          >
-            Yeni müsahibə başlat
-          </button>
-        </div>
-
       </div>
-    </PageTransition>
+    </PageContainer>
   )
 }
