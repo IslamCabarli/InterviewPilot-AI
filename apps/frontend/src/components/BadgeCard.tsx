@@ -1,21 +1,32 @@
+import { Award, Lock } from 'lucide-react'
 import type { Badge } from '../api/gamification'
+import { cn } from '../lib/cn'
 
 export default function BadgeCard({ badge }: { badge: Badge }) {
   return (
     <div
-      className={`rounded-lg border p-4 text-center transition-opacity ${
-        badge.unlocked ? 'border-border bg-surface' : 'border-border bg-surface opacity-40'
-      }`}
+      className={cn(
+        'flex h-full flex-col items-center rounded-lg border border-border p-4 text-center',
+        badge.unlocked ? 'bg-surface' : 'bg-surface-muted',
+      )}
     >
       <div
-        className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full ${
-          badge.unlocked ? 'bg-accent/10' : 'bg-text-secondary/10'
-        }`}
+        className={cn(
+          'flex h-9 w-9 items-center justify-center rounded-full',
+          badge.unlocked ? 'bg-accent/10 text-accent' : 'bg-border/60 text-text-secondary',
+        )}
       >
-        <span className={`h-2.5 w-2.5 rounded-full ${badge.unlocked ? 'bg-accent' : 'bg-text-secondary/40'}`} />
+        {badge.unlocked ? (
+          <Award className="h-4 w-4" aria-hidden />
+        ) : (
+          <Lock className="h-4 w-4" aria-hidden />
+        )}
       </div>
-      <p className="mt-2 text-xs font-medium text-text-primary">{badge.label}</p>
-      <p className="mt-0.5 text-[10px] text-text-secondary">{badge.description}</p>
+      <p className={cn('mt-2 text-xs font-medium', !badge.unlocked && 'text-text-secondary')}>
+        {badge.label}
+      </p>
+      <p className="mt-0.5 text-[11px] leading-snug text-text-secondary">{badge.description}</p>
+      <span className="sr-only">{badge.unlocked ? 'Qazanılıb' : 'Kilidli'}</span>
     </div>
   )
 }
