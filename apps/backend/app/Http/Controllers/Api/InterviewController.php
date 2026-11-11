@@ -257,4 +257,31 @@ class InterviewController extends Controller
 
         return response()->json(['interview' => $interview]);
     }
+
+    #[OA\Get(
+        path: '/interviews',
+        summary: 'İstifadəçinin son müsahibələri',
+        tags: ['Interviews'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 5)),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Son müsahibələrin siyahısı'),
+        ]
+    )]
+    public function index(Request $request)
+    {
+        $validated = $request->validate([
+            'limit' => ['sometimes', 'integer', 'min:1', 'max:20'],
+        ]);
+
+        $interviews = Interview::where('user_id', $request->user()->id)
+            ->latest()
+            ->latest('id')
+            ->limit($validated['limit'] ?? 5)
+            ->get(['id', 'type', 'difficulty', 'status', 'overall_score', 'completed_at', 'created_at']);
+
+        return response()->json(['interviews' => $interviews]);
+    }
 }
