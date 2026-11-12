@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router'
 import { queryClient } from './app/queryClient'
 import { AuthProvider } from './auth/AuthProvider'
 import ErrorBoundary from './components/ErrorBoundary'
+import RouteEffects from './components/RouteEffects'
 import { ToastViewport } from './components/ui'
 import App from './App'
 import './theme/themeStore'
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <ErrorBoundary>
             <MotionConfig reducedMotion="user">
+              <RouteEffects />
               <App />
               <ToastViewport />
             </MotionConfig>
