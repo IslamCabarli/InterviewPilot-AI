@@ -84,4 +84,38 @@ class DashboardControllerTest extends TestCase
             ->assertOk()
             ->assertJsonPath('completedInterviews', 0);
     }
+
+    public function test_recent_interviews_returns_latest_five_completed_for_the_user_only(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        foreach (range(1, 6) as $day) {
+            Interview::factory()->create([
+                'user_id' => $user->id,
+                'status' => 'completed',
+                'overall_score' => 50 + $day,
+                'completed_at' => now()->subDays(10 - $day),
+            ]);
+        }
+
+        Interview::factory()->create(['user_id' => $user->id, 'status' => 'in_progress']);
+        Interview::factory()->create([
+            'user_id' => $other->id,
+            'status' => 'completed',
+            'completed_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')->getJson('/api/dashboard/recent-interviews');
+
+        $response->assertOk()->assertJsonCount(5, 'interviews');
+
+        $scores = collect($response->json('interviews'))->pluck('overall_score')->all();
+        $this->assertSame([56, 55, 54, 53, 52], $scores);
+    }
+
+    public function test_guest_cannot_view_recent_interviews(): void
+    {
+        $this->getJson('/api/dashboard/recent-interviews')->assertStatus(401);
+    }
 }
