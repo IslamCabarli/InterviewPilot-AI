@@ -8,6 +8,12 @@ export interface ToastItem {
   message: string
 }
 
+const DURATIONS: Record<ToastTone, number> = {
+  success: 4500,
+  info: 4500,
+  error: 8000,
+}
+
 interface ToastState {
   toasts: ToastItem[]
   push: (tone: ToastTone, message: string) => void
@@ -21,7 +27,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
   push: (tone, message) => {
     const id = nextId++
     set((s) => ({ toasts: [...s.toasts, { id, tone, message }] }))
-    setTimeout(() => get().dismiss(id), 4500)
+    setTimeout(() => get().dismiss(id), DURATIONS[tone])
   },
   dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }))
