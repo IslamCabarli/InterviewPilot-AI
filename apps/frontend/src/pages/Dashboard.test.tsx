@@ -6,7 +6,10 @@ import { getActiveInterview } from '../api/interview'
 import { renderWithProviders, screen } from '../test/render'
 import Dashboard from './Dashboard'
 
-vi.mock('../api/dashboard', () => ({ getDashboardStats: vi.fn() }))
+vi.mock('../api/dashboard', () => ({
+  getDashboardStats: vi.fn(),
+  getRecentInterviews: vi.fn(),
+}))
 vi.mock('../api/gamification', () => ({ getGamificationStats: vi.fn() }))
 vi.mock('../api/interview', () => ({ getActiveInterview: vi.fn() }))
 vi.mock('../auth/useAuth', () => ({
