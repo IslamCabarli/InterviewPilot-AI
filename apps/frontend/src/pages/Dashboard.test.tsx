@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import { getDashboardStats, type DashboardStats } from '../api/dashboard'
+import { getDashboardStats, getRecentInterviews, type DashboardStats } from '../api/dashboard'
 import { getGamificationStats, type GamificationStats } from '../api/gamification'
 import { getActiveInterview } from '../api/interview'
 import { renderWithProviders, screen } from '../test/render'
@@ -50,6 +50,7 @@ describe('Dashboard', () => {
     vi.mocked(getDashboardStats).mockResolvedValue(stats)
     vi.mocked(getGamificationStats).mockResolvedValue(gamification)
     vi.mocked(getActiveInterview).mockResolvedValue(null)
+    vi.mocked(getRecentInterviews).mockResolvedValue([])
   })
 
   it('shows skeletons while the data loads', () => {
@@ -124,5 +125,24 @@ describe('Dashboard', () => {
     await user.click(screen.getByRole('button', { name: 'Yenidən yoxla' }))
 
     expect(await screen.findByRole('group', { name: 'Ortalama bal' })).toBeInTheDocument()
+  })
+
+  it('lists the most recent interviews with links to their reports', async () => {
+    vi.mocked(getRecentInterviews).mockResolvedValue([
+      { id: 12, type: 'backend', difficulty: 'medium', overall_score: 82, completed_at: '2026-10-05T10:00:00Z' },
+    ])
+    renderWithProviders(<Dashboard />)
+
+    expect(await screen.findByText('Son müsahibələr')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Backend/ })).toHaveAttribute('href', '/interviews/12/report')
+  })
+
+  it('does not show the recent list before the first interview is done', async () => {
+    vi.mocked(getDashboardStats).mockResolvedValue({ ...stats, completedInterviews: 0, weeklyStreak: 0 })
+    renderWithProviders(<Dashboard />)
+
+    await screen.findByText('Hələ müsahibə keçirməmisən')
+
+    expect(screen.queryByText('Son müsahibələr')).not.toBeInTheDocument()
   })
 })
