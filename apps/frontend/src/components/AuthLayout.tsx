@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Check } from 'lucide-react'
 import Logo from './Logo'
 import { ThemeToggle } from './ui'
+import SkipLink from './SkipLink'
 
 const points = [
   'Səslə real müsahibə təcrübəsi',
@@ -19,6 +20,10 @@ interface AuthLayoutProps {
 export default function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+
+      <div className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        <SkipLink />
+        <aside
       <aside className="relative hidden overflow-hidden border-r border-border bg-surface-muted lg:flex lg:flex-col lg:justify-between lg:p-12">
         <Logo />
 
@@ -48,7 +53,7 @@ export default function AuthLayout({ title, subtitle, children, footer }: AuthLa
         />
       </aside>
 
-      <main className="flex flex-col">
+      <main id="main" tabIndex={-1} className="flex flex-col outline-none">
         <div className="flex items-center justify-between px-6 py-5 sm:px-10">
           <Logo className="lg:invisible" />
           <ThemeToggle />
