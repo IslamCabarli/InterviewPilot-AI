@@ -66,6 +66,7 @@ export default function InterviewSession({ seed }: { seed: SessionSeed }) {
       queryClient.removeQueries({ queryKey: ['active-interview'] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
       void queryClient.invalidateQueries({ queryKey: ['gamification-stats'] })
+      void queryClient.invalidateQueries({ queryKey: ['recent-interviews'] })
       navigate(`/interviews/${seed.interviewId}/report`)
     },
     onError: (error) => {
