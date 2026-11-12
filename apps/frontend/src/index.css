@@ -10,9 +10,10 @@
     --text-primary: #14151a;
     --text-secondary: #6b6f76;
     --border: #e4e4e7;
+    --border-strong: #8a8d95;
     --accent: #e2a6dd;
     --accent-foreground: #ffffff;
-    --positive: #1b8a5a;
+    --positive: #167a4f;
     --danger: #d92d20;
 }
 
@@ -24,6 +25,7 @@
     --text-primary: #ececee;
     --text-secondary: #9a9ea6;
     --border: #272a30;
+    --border-strong: #656a73;
     --accent: #e2a6dd;
     --accent-foreground: #0e0f12;
     --positive: #3bb887;
@@ -37,6 +39,7 @@
     --color-text-primary: var(--text-primary);
     --color-text-secondary: var(--text-secondary);
     --color-border: var(--border);
+    --color-border-strong: var(--border-strong);
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
     --color-positive: var(--positive);
@@ -53,11 +56,24 @@
     body {
         @apply bg-bg font-body text-text-primary antialiased;
     }
-}
-@layer base {
+
+
+    :where(a, button, summary, [role='switch'], [tabindex]:not([tabindex='-1'])):focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
     @media (prefers-reduced-motion: no-preference) {
         html {
             scroll-behavior: smooth;
         }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-pulse,
+    .animate-bounce,
+    .animate-ping {
+        animation: none;
     }
 }
