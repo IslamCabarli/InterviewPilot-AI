@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 
 interface ModalProps {
@@ -10,6 +10,7 @@ interface ModalProps {
 
 export default function Modal({ open, onClose, title, children }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
 
   useEffect(() => {
     const dialog = ref.current
@@ -21,6 +22,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <dialog
       ref={ref}
+      aria-labelledby={titleId}
       onClose={onClose}
       onClick={(e) => {
         if (e.target === ref.current) onClose()
@@ -29,7 +31,9 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
     >
       <div className="p-6">
         <div className="flex items-start justify-between gap-4">
-          <h2 className="font-display text-lg font-semibold tracking-tight">{title}</h2>
+          <h2 id={titleId} className="font-display text-lg font-semibold tracking-tight">
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}
