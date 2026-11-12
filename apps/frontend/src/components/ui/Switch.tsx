@@ -17,7 +17,7 @@ export default function Switch({ checked, onCheckedChange, className, ...props }
         'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        checked ? 'border-accent bg-accent' : 'border-border bg-surface-muted',
+        checked ? 'border-accent bg-accent' : 'border-border-strong bg-surface-muted',
         className,
       )}
       {...props}
