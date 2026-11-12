@@ -14,9 +14,9 @@ export default function ScoreBar({ label, value, max, delay = 0 }: ScoreBarProps
     <div>
       <div className="flex items-baseline justify-between">
         <p className="text-sm text-text-primary">{label}</p>
-        <p className="font-mono text-sm text-text-secondary">
+        <p className="font-mono text-sm text-text-primary">
           {value}
-          <span className="text-text-secondary/50">/{max}</span>
+          <span className="text-text-secondary">/{max}</span>
         </p>
       </div>
       <div
