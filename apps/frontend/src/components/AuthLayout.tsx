@@ -20,10 +20,8 @@ interface AuthLayoutProps {
 export default function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <SkipLink />
 
-      <div className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-        <SkipLink />
-        <aside
       <aside className="relative hidden overflow-hidden border-r border-border bg-surface-muted lg:flex lg:flex-col lg:justify-between lg:p-12">
         <Logo />
 
@@ -31,6 +29,7 @@ export default function AuthLayout({ title, subtitle, children, footer }: AuthLa
           <p className="font-display text-3xl font-semibold leading-tight tracking-tight">
             Hər müsahibə səni bir addım irəli aparır.
           </p>
+
           <ul className="mt-8 space-y-3">
             {points.map((point) => (
               <li key={point} className="flex items-start gap-3 text-sm text-text-secondary">
@@ -41,7 +40,9 @@ export default function AuthLayout({ title, subtitle, children, footer }: AuthLa
           </ul>
         </div>
 
-        <p className="relative z-10 font-mono text-xs text-text-secondary">Açıq mənbə · MIT</p>
+        <p className="relative z-10 font-mono text-xs text-text-secondary">
+          Açıq mənbə · MIT
+        </p>
 
         <div
           aria-hidden

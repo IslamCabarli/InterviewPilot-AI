@@ -8,7 +8,7 @@ const swatches = [
   'surface',
   'surface-muted',
   'border',
-  'border-strong'
+  'border-strong',
   'text-secondary',
   'text-primary',
   'accent',
