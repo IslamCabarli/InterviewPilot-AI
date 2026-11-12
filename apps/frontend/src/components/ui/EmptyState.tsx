@@ -7,16 +7,20 @@ interface EmptyStateProps {
   title: string
   description?: string
   action?: ReactNode
+  headingLevel?: 2 | 3
   className?: string
 }
 
 export default function EmptyState({
-                                     icon: Icon,
-                                     title,
-                                     description,
-                                     action,
-                                     className,
-                                   }: EmptyStateProps) {
+   icon: Icon,
+   title,
+   description,
+   action,
+   headingLevel = 2,
+   className,
+  }: EmptyStateProps) {
+  const Heading = headingLevel === 2 ? 'h2' : 'h3'
+
   return (
     <div className={cn('flex flex-col items-center px-6 py-10 text-center', className)}>
       {Icon && (
@@ -24,9 +28,9 @@ export default function EmptyState({
           <Icon className="h-5 w-5" aria-hidden />
         </div>
       )}
-      <h3 className={cn('font-display text-base font-semibold tracking-tight', Icon && 'mt-4')}>
+      <Heading className={cn('font-display text-base font-semibold tracking-tight', Icon && 'mt-4')}>
         {title}
-      </h3>
+      </Heading>
       {description && (
         <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-text-secondary">{description}</p>
       )}
