@@ -38,3 +38,24 @@ export function BadgesSkeleton() {
     </Card>
   )
 }
+
+export function RecentSkeleton() {
+  return (
+    <Card role="status" aria-label="Son müsahibələr yüklənir" className="p-0">
+      <div className="px-6 pb-3 pt-6">
+        <Skeleton className="h-3 w-32" />
+      </div>
+      <div className="divide-y divide-border border-t border-border">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div key={index} className="flex items-center justify-between px-6 py-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+            <Skeleton className="h-6 w-16" />
+          </div>
+        ))}
+      </div>
+    </Card>
+  )
+}
