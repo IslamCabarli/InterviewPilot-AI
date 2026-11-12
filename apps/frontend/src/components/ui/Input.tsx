@@ -8,8 +8,9 @@ interface FieldProps {
 }
 
 const control =
-  'w-full rounded-md border bg-bg px-3 text-sm text-text-primary outline-none transition-colors ' +
-  'placeholder:text-text-secondary/70 focus:border-accent disabled:opacity-50'
+  'w-full rounded-md border bg-bg px-3 text-sm text-text-primary transition-colors ' +
+  'placeholder:text-text-secondary focus:border-accent focus:outline-2 focus:outline-offset-0 focus:outline-accent ' +
+  'disabled:opacity-50'
 
 function Message({ id, error, hint }: { id: string; error?: string; hint?: string }) {
   if (error)
@@ -53,7 +54,7 @@ export function Input({
         id={fieldId}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy(fieldId, error, hint)}
-        className={cn(control, 'h-10', error ? 'border-danger' : 'border-border', className)}
+        className={cn(control, 'h-10', error ? 'border-danger' : 'border-border-strong', className)}
         {...props}
       />
       <Message id={fieldId} error={error} hint={hint} />
@@ -62,13 +63,13 @@ export function Input({
 }
 
 export function Textarea({
-                           label,
-                           error,
-                           hint,
-                           className,
-                           id,
-                           ...props
-                         }: FieldProps & ComponentProps<'textarea'>) {
+   label,
+   error,
+   hint,
+   className,
+   id,
+   ...props
+ }: FieldProps & ComponentProps<'textarea'>) {
   const autoId = useId()
   const fieldId = id ?? autoId
 
@@ -79,14 +80,14 @@ export function Textarea({
           {label}
         </label>
       )}
-        <textarea
-          id={fieldId}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy(fieldId, error, hint)}
-          className={cn(control, 'resize-none py-2', error ? 'border-danger' : 'border-border', className)}
-          {...props}
-        />
-        <Message id={fieldId} error={error} hint={hint} />
+      <textarea
+        id={fieldId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy(fieldId, error, hint)}
+        className={cn(control, 'resize-none py-2', error ? 'border-danger' : 'border-border-strong', className)}
+        {...props}
+      />
+      <Message id={fieldId} error={error} hint={hint} />
     </div>
   )
 }
