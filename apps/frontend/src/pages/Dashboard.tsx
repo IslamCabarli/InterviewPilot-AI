@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { Mic } from 'lucide-react'
 import { Link } from 'react-router'
-import { getDashboardStats } from '../api/dashboard'
+import { getDashboardStats, getRecentInterviews  } from '../api/dashboard'
+import RecentInterviews from '../components/dashboard/RecentInterviews'
 import { getGamificationStats } from '../api/gamification'
 import { getActiveInterview } from '../api/interview'
 import { useAuth } from '../auth/useAuth'
@@ -9,7 +10,7 @@ import BadgesCard from '../components/dashboard/BadgesCard'
 import { LevelProgress, LevelProgressSkeleton } from '../components/dashboard/LevelProgress'
 import ResumeBanner from '../components/dashboard/ResumeBanner'
 import SectionError from '../components/dashboard/SectionError'
-import { BadgesSkeleton, ChartsSkeleton, StatsSkeleton } from '../components/dashboard/skeletons'
+import { BadgesSkeleton, ChartsSkeleton, RecentSkeleton, StatsSkeleton } from '../components/dashboard/skeletons'
 import SkillRadarChart from '../components/dashboard/SkillRadarChart'
 import StatCard from '../components/dashboard/StatCard'
 import WeeklyProgressChart from '../components/dashboard/WeeklyProgressChart'
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const stats = useQuery({ queryKey: ['dashboard-stats'], queryFn: getDashboardStats })
   const gamification = useQuery({ queryKey: ['gamification-stats'], queryFn: getGamificationStats })
   const active = useQuery({ queryKey: ['active-interview'], queryFn: getActiveInterview })
+  const recent = useQuery({ queryKey: ['recent-interviews'], queryFn: getRecentInterviews })
 
   const firstName = user?.name?.trim().split(/\s+/)[0]
   const hasData = (stats.data?.completedInterviews ?? 0) > 0
@@ -90,6 +92,18 @@ export default function Dashboard() {
                 />
               </Card>
             )}
+            {hasData &&
+              (recent.isPending ? (
+                <RecentSkeleton />
+              ) : recent.isError ? (
+                <SectionError
+                  message="Son müsahibələri yükləmək mümkün olmadı."
+                  onRetry={() => void recent.refetch()}
+                  retrying={recent.isFetching}
+                />
+              ) : (
+                <RecentInterviews interviews={recent.data} />
+              ))}
           </>
         )}
 
