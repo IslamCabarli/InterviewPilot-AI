@@ -27,7 +27,7 @@ export default function ChatBubble({ role, content, streaming = false }: ChatBub
       >
         <p
           className={cn(
-            'mb-1 text-[10px] font-medium uppercase tracking-wide',
+            'mb-1 text-[11px] font-medium uppercase tracking-wide',
             isAi ? 'text-text-secondary' : 'opacity-70',
           )}
         >

@@ -28,7 +28,7 @@ export function LevelProgress({ level, xpIntoLevel, xpForNextLevel }: LevelProgr
           transition={{ duration: 0.6, ease: 'easeOut' }}
         />
       </div>
-      <p className="mt-1.5 font-mono text-[10px] text-text-secondary">
+      <p className="mt-1.5 font-mono text-[11px] text-text-secondary">
         {xpIntoLevel} / {xpForNextLevel} XP
       </p>
     </div>

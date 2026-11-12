@@ -65,7 +65,7 @@ export default function AvatarOrb({ state, size = 'md' }: AvatarOrbProps) {
 
       <p
         role="status"
-        className="font-mono text-[10px] uppercase tracking-wide text-text-secondary"
+        className="font-mono text-[11px] uppercase tracking-wide text-text-secondary"
       >
         {labels[state]}
       </p>

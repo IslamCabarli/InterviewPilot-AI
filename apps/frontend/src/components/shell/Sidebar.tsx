@@ -68,7 +68,7 @@ export default function Sidebar() {
           GitHub
           <ArrowUpRight className="h-3 w-3" aria-hidden />
         </a>
-        <p className="mt-1 font-mono text-[10px] text-text-secondary">Açıq mənbə · MIT</p>
+        <p className="mt-1 font-mono text-[11px] text-text-secondary">Açıq mənbə · MIT</p>
       </div>
     </aside>
   )

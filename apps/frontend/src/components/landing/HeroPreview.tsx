@@ -10,7 +10,7 @@ export default function HeroPreview() {
         </div>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-          <span className="font-mono text-[10px] uppercase tracking-wide text-text-secondary">
+          <span className="font-mono text-[11px] uppercase tracking-wide text-text-secondary">
             Danışır
           </span>
         </div>
@@ -18,13 +18,13 @@ export default function HeroPreview() {
 
       <div className="space-y-3 p-4">
         <div className="max-w-[85%] rounded-lg border border-border bg-bg px-3 py-2.5 text-sm leading-relaxed">
-          <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-text-secondary">
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-text-secondary">
             İnterviewer
           </p>
           Can you explain how dependency injection works in Laravel, and why it matters?
         </div>
         <div className="ml-auto max-w-[85%] rounded-lg bg-accent px-3 py-2.5 text-sm leading-relaxed text-accent-foreground">
-          <p className="mb-1 text-[10px] font-medium uppercase tracking-wide opacity-70">Sən</p>
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide opacity-70">Sən</p>
           The service container resolves a class&apos;s dependencies automatically, so code stays
           loosely coupled and easy to test.
         </div>

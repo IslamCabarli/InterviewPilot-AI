@@ -42,7 +42,7 @@ export default function UiKit() {
                 className="h-12 rounded-md border border-border"
                 style={{ backgroundColor: `var(--${name})` }}
               />
-              <p className="mt-1 font-mono text-[10px] text-text-secondary">{name}</p>
+              <p className="mt-1 font-mono text-[11px] text-text-secondary">{name}</p>
             </div>
           ))}
         </div>
