@@ -107,15 +107,6 @@ docker compose exec backend php artisan tinker
 \App\Models\User::where('email', 'you@example.com')->first()->assignRole('admin');
 ```
 
-### Try it with demo data (local only)
-
-```bash
-docker compose exec backend php artisan db:seed --class=DemoSeeder
-```
-
-Sign in with `demo@interviewpilot.dev` / `demo-password-123` to see a populated dashboard.
-The seeder refuses to run in production.
-
 ## Configuration
 
 Key variables in `apps/backend/.env`:

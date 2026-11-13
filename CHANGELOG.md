@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1
+
+### Changed
+- Fonts are now bundled with the app instead of loaded from Google Fonts, so no request leaves your machine
+- Dashboard charts load on demand, making the first page load lighter
+- Added `robots.txt`
+
 ## 1.1.0
 
 ### Added
@@ -9,7 +16,6 @@
 - Dashboard: loading skeletons, empty states, recent interviews, theme-aware charts, retry on errors
 - Light/dark/system theme, toast notifications, reduced-motion support
 - Accessibility: skip link, route announcements, focus management, axe tests
-- Demo data seeder (local only)
 
 ### Changed
 - Interviewer responses are streamed live
