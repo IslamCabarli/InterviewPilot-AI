@@ -86,6 +86,7 @@ services:
     restart: unless-stopped
     ports:
       - "5173:5173"
+      - "4173:4173"
     volumes:
       - ./apps/frontend:/app
       - /app/node_modules
