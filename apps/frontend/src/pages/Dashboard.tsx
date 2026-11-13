@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Mic } from 'lucide-react'
 import { Link } from 'react-router'
+import { lazy, Suspense } from 'react'
 import { getDashboardStats, getRecentInterviews  } from '../api/dashboard'
 import RecentInterviews from '../components/dashboard/RecentInterviews'
 import { getGamificationStats } from '../api/gamification'
@@ -11,12 +12,12 @@ import { LevelProgress, LevelProgressSkeleton } from '../components/dashboard/Le
 import ResumeBanner from '../components/dashboard/ResumeBanner'
 import SectionError from '../components/dashboard/SectionError'
 import { BadgesSkeleton, ChartsSkeleton, RecentSkeleton, StatsSkeleton } from '../components/dashboard/skeletons'
-import SkillRadarChart from '../components/dashboard/SkillRadarChart'
 import StatCard from '../components/dashboard/StatCard'
-import WeeklyProgressChart from '../components/dashboard/WeeklyProgressChart'
 import { PageContainer, PageHeader } from '../components/shell/Page'
 import { Card, EmptyState } from '../components/ui'
 import { buttonStyles } from '../components/ui/buttonStyles'
+const WeeklyProgressChart = lazy(() => import('../components/dashboard/WeeklyProgressChart'))
+const SkillRadarChart = lazy(() => import('../components/dashboard/SkillRadarChart'))
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -74,10 +75,12 @@ export default function Dashboard() {
             </section>
 
             {hasData ? (
-              <div className="grid gap-4 lg:grid-cols-2">
-                <WeeklyProgressChart data={stats.data.weeklyProgress} />
-                <SkillRadarChart data={stats.data.skillRadar} />
-              </div>
+              <Suspense fallback={<ChartsSkeleton />}>
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <WeeklyProgressChart data={stats.data.weeklyProgress} />
+                  <SkillRadarChart data={stats.data.skillRadar} />
+                </div>
+              </Suspense>
             ) : (
               <Card>
                 <EmptyState

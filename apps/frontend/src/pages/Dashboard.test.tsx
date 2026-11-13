@@ -81,7 +81,7 @@ describe('Dashboard', () => {
     renderWithProviders(<Dashboard />)
 
     expect(await screen.findByTestId('weekly-chart')).toBeInTheDocument()
-    expect(screen.getByTestId('radar-chart')).toBeInTheDocument()
+    expect(await screen.findByTestId('radar-chart')).toBeInTheDocument()
     expect(await screen.findByText('1/2')).toBeInTheDocument()
   })
 
