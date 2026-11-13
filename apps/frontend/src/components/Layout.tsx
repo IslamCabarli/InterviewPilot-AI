@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router'
+import PageLoading from './PageLoading'
 import ErrorBoundary from './ErrorBoundary'
 import MobileNav from './shell/MobileNav'
 import Sidebar from './shell/Sidebar'
@@ -25,7 +26,9 @@ export default function Layout() {
         <Topbar />
         <main id="main" ref={mainRef} tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto outline-none">
           <ErrorBoundary variant="inline" resetKey={pathname}>
-            <Outlet />
+            <Suspense fallback={<PageLoading />}>
+              <Outlet />
+            </Suspense>
           </ErrorBoundary>
         </main>
         {!focusMode && <MobileNav />}
