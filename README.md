@@ -1,225 +1,191 @@
 # InterviewPilot AI
 
-> Practice real technical interviews with an AI interviewer — fully open-source, runs locally.
+> Practice real technical interviews with an AI interviewer. Open source, runs entirely on your machine.
 
-InterviewPilot AI is a self-hosted mock interview platform. It conducts real-time, voice-enabled
-technical interviews using a local LLM (Ollama), transcribes your spoken answers (Whisper), and
-speaks back to you (Piper TTS) — all running on your own machine, no API keys or cloud costs required.
+[![CI](https://github.com/IslamCabarli/InterviewPilot-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/IslamCabarli/InterviewPilot-AI/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+InterviewPilot AI is a self-hosted mock interview platform. A local LLM (Ollama) plays the interviewer,
+Whisper transcribes your spoken answers, and Piper speaks the questions back. No API keys, no subscription,
+and your voice, CV and answers never leave your machine.
+
+![Landing page](docs/screenshots/landing.png)
 
 ## Features
 
-- 🎙️ Voice-based interviews (speak your answers, AI speaks back)
-- 🤖 Local LLM via Ollama — no OpenAI/Claude API key needed
-- 📊 AI-generated evaluation reports (score breakdown, strengths, weaknesses, recommendations)
-- 📄 CV-aware interviews (upload your CV, questions adapt to your background)
-- 🎮 Lightweight gamification (XP, levels, streaks, badges)
-- 🛠️ Admin panel (Filament) for managing users and interviews
-- 🐳 Docker Compose setup for core services
+- 🎙️ **Voice interviews**: speak your answers, the interviewer answers out loud (text works too)
+- 🤖 **Local LLM** via Ollama, with streamed responses
+- 📊 **AI evaluation report**: score breakdown, strengths, weak points, topics to study
+- 📄 **CV-aware questions**: upload a PDF and the interviewer asks about your actual experience
+- 🧭 **Guided setup**: pick the interview type and difficulty (Easy → Senior) step by step
+- 📈 **Progress tracking**: weekly chart, skill map, recent interviews, XP, levels, streaks and badges
+- ♿ **Accessible and responsive**: keyboard friendly, light/dark/system theme, reduced-motion support
+- 🛠️ **Admin panel** (Filament) for users, interviews and reports
+- 🐳 **Docker Compose** for the web stack
 
-## Tech Stack
+## Screenshots
+
+| Dashboard | Dashboard (dark) |
+|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Dashboard dark](docs/screenshots/dashboard-dark.png) |
+
+| Interview setup | Interview |
+|---|---|
+| ![Setup](docs/screenshots/interview-setup.png) | ![Interview](docs/screenshots/interview-chat.png) |
+
+| Report | Mobile |
+|---|---|
+| ![Report](docs/screenshots/report.png) | ![Mobile dashboard](docs/screenshots/mobile-dashboard.png) ![Mobile interview](docs/screenshots/mobile-interview.png) |
+
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Backend | Laravel 13, PHP 8.4 |
-| Frontend | React 19.2, TypeScript, Vite, Tailwind CSS |
-| Database | PostgreSQL 16 |
-| Cache/Queue | Redis |
-| LLM | Ollama (llama3.1:8b) |
+| Backend | Laravel 13, PHP 8.4, Sanctum, Spatie Permission |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, Zustand, Framer Motion |
+| Database | PostgreSQL 16, Redis |
+| LLM | Ollama (`llama3.1:8b` by default) |
 | Speech-to-Text | faster-whisper |
-| Text-to-Speech | Piper TTS |
+| Text-to-Speech | Piper |
 | Realtime | Laravel Reverb |
 | Admin | Filament 5 |
+| Tests | PHPUnit, Vitest, Testing Library, axe-core |
 
 ## Prerequisites
 
-- Docker & Docker Compose
-- Python 3.11+ (for STT/TTS services, run outside Docker — see below)
-- ~8GB free disk space (for the Ollama model)
+- Docker and Docker Compose
+- [Ollama](https://ollama.com/download) installed on the host
+- Python 3.11+ (only for optional voice features)
+- ~8 GB free disk space for the model
 
 ## Installation
 
-### 1. Clone and start core services
+### 1. Install Ollama and pull a model
 
-`
+Ollama runs on your host (not in Docker), so it can use your GPU automatically
+(NVIDIA, AMD or Apple Silicon).
+
+```bash
+ollama pull llama3.1:8b
+```
+
+Smaller GPU or CPU only? Use a lighter model and set `OLLAMA_MODEL` in `.env`, for example `llama3.2:3b`.
+
+### 2. Clone and start the web stack
+
+```bash
 git clone https://github.com/IslamCabarli/InterviewPilot-AI.git
 cd InterviewPilot-AI
 cp apps/backend/.env.example apps/backend/.env
 docker compose up -d --build
-`
-
-### 2. Run migrations and seed the database
-
-`
+docker compose exec backend php artisan key:generate
 docker compose exec backend php artisan migrate --seed
-`
-
-> **Important:** seeding is required, not optional — it creates the `user`/`admin` roles that
-> registration depends on. Running `migrate` alone will leave signup broken.
-
-### 3. Pull the Ollama model
-
-Make sure Ollama is running on your machine, then:
-
-```
-ollama pull llama3.2:3b
 ```
 
-Set `OLLAMA_MODEL=llama3.2:3b` in `apps/backend/.env`. On GPUs with 4–6GB VRAM this
-runs fully on the GPU; larger models (e.g. `llama3.1:8b`) may partially fall back to CPU.
+> Seeding is required: it creates the `user` and `admin` roles that registration depends on.
 
-### 4. Set up Speech-to-Text and Text-to-Speech (run locally, not in Docker)
+### 3. Open the app
 
-These currently run outside Docker (see [Roadmap](#roadmap)).
-
-**STT (faster-whisper):**
-`
-cd services/stt
-python -m venv venv
-source venv/bin/activate  # Windows: venv\\Scripts\\activate
-pip install faster-whisper fastapi uvicorn python-multipart
-uvicorn main:app --host 0.0.0.0 --port 8001
-`
-
-**TTS (Piper):** download a Windows/Linux Piper release and a voice model — see
-[`services/tts/README.md`](services/tts/README.md) for full steps.
-
-
-### 4.5 (Optional) Enable voice input/output
-
-Voice features require two small services running locally, in addition to
-Docker Compose:
-
-- [STT setup guide](services/stt/README.md) — lets you speak your answers
-- [TTS setup guide](services/tts/README.md) — lets the AI speak back
-
-Without these, the app works fine in **text-only mode**.
-### 5. Open the app
-
-- Frontend: http://localhost:5173
+- App: http://localhost:5173
 - API docs (Swagger): http://localhost:8000/api/documentation
-- Admin panel: http://localhost:8000/admin (requires an `admin` role — see below)
+- Admin panel: http://localhost:8000/admin
+
+### 4. (Optional) Enable voice
+
+Without these two small services the app works in text-only mode.
+
+- [Speech-to-Text setup](services/stt/README.md): speak your answers
+- [Text-to-Speech setup](services/tts/README.md): hear the interviewer
 
 ### Creating an admin user
 
-`
+```bash
 docker compose exec backend php artisan tinker
-`
-\`\`\`php
-$user = \App\Models\User::where('email', 'you@example.com')->first();
-$user->assignRole('admin');
-\`\`\`
+```
+
+```php
+\App\Models\User::where('email', 'you@example.com')->first()->assignRole('admin');
+```
+
+### Try it with demo data (local only)
+
+```bash
+docker compose exec backend php artisan db:seed --class=DemoSeeder
+```
+
+Sign in with `demo@interviewpilot.dev` / `demo-password-123` to see a populated dashboard.
+The seeder refuses to run in production.
 
 ## Configuration
 
-Key environment variables (`apps/backend/.env`):
+Key variables in `apps/backend/.env`:
 
 | Variable | Default | Description |
 |---|---|---|
-| `AI_PROVIDER` | `ollama` | LLM provider (extensible — see `AiProviderInterface`) |
-| `OLLAMA_URL` | `http://ollama:11434` | Ollama endpoint (Docker network) |
+| `OLLAMA_URL` | `http://host.docker.internal:11434` | Ollama endpoint |
 | `OLLAMA_MODEL` | `llama3.1:8b` | Model name |
-| `WHISPER_URL` | `http://host.docker.internal:8001` | STT service (runs on host) |
-| `PIPER_URL` | `http://host.docker.internal:8002` | TTS service (runs on host) |
+| `OLLAMA_NUM_CTX` | `4096` | Context window |
+| `OLLAMA_NUM_PREDICT` | `300` | Max tokens per interviewer reply |
+| `OLLAMA_KEEP_ALIVE` | `30m` | How long the model stays loaded |
+| `WHISPER_URL` | `http://host.docker.internal:8001` | Speech-to-text service |
+| `PIPER_URL` | `http://host.docker.internal:8002` | Text-to-speech service |
+| `FRONTEND_URL` | `http://localhost:5173` | Allowed CORS origin(s), comma separated |
 
-## Screenshots
+On Linux, `host.docker.internal` requires `extra_hosts: ["host.docker.internal:host-gateway"]`
+on the backend service (already set in `docker-compose.yml`).
 
-### Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
+## Development
 
-### Interview Chat
-![Interview Chat](docs/screenshots/interview-chat.png)
+```bash
+# Backend
+docker compose exec backend php artisan test
+docker compose exec backend ./vendor/bin/pint --test
 
-### Evaluation Report
-![Report](docs/screenshots/report.png)
-
-### Admin Panel
-![Admin Panel](docs/screenshots/admin-panel.png)
-
-## Known Limitations
-
-- **Voice input/output requires manual setup.** `docker compose up` alone only
-  gives you text-based interviews. To enable speaking and listening, you also
-  need to run the STT and TTS services locally — see
-  [`services/stt/README.md`](services/stt/README.md) and
-  [`services/tts/README.md`](services/tts/README.md). Dockerizing these is on
-  the roadmap; PRs welcome.
-- Piper TTS currently only supports English voices — there is no Azerbaijani
-  TTS model available yet.
-- Realtime token-by-token streaming (Reverb) is implemented on the backend but
-  not yet wired up on the frontend — interview responses currently arrive as
-  complete messages rather than streaming live.
-
-
-## ⚠️ Production Deployment Note
-
-This project is configured for local/development use by default
-(`APP_DEBUG=true` in `.env.example`). **If you deploy this publicly, you must
-set:**
-
-\`\`\`env
-APP_DEBUG=false
-APP_ENV=production
-\`\`\`
-
-Leaving `APP_DEBUG=true` in a public deployment exposes internal file paths,
-stack traces, and framework details in API error responses — a real security
-risk, not just a cosmetic one.
-
-
-## GPU Acceleration
-
-Ollama runs natively on your machine, so it uses an NVIDIA GPU automatically
-when drivers are up to date — no extra Docker configuration needed. Verify with:
-
-```
-ollama ps
+# Frontend
+docker compose exec frontend npm run test
+docker compose exec frontend npx tsc -b
+docker compose exec frontend npm run lint
 ```
 
-The `PROCESSOR` column should read `100% GPU`. If it shows a CPU/GPU split, the
-model is too large for your VRAM — switch to a smaller one (e.g. `llama3.2:3b`).
+CI runs the same checks on every push and pull request.
 
-> **Linux:** add `extra_hosts: ["host.docker.internal:host-gateway"]` to the
-> `backend`, `reverb` and `queue` services in `docker-compose.yml`, and set
-> `OLLAMA_HOST=0.0.0.0` so containers can reach Ollama on the host.
+## Known limitations
 
-## Security Notes for Production Deployment
+- Voice features need two small services running on the host (not yet in Docker Compose).
+- Piper currently has no Azerbaijani voice, so spoken output is English only.
+- Interview quality depends on the local model you choose. Larger models give better questions and evaluation.
 
-This project defaults to development-friendly settings. Before deploying
-publicly (beyond local self-hosting), you should:
+## Security notes for production
 
-- Set `APP_DEBUG=false` in `.env`
-- Generate fresh `APP_KEY`, `REVERB_APP_KEY`/`REVERB_APP_SECRET`
-- Change the default PostgreSQL password in `docker-compose.yml`
-- Restrict `allowed_origins` in `config/reverb.php` to your actual domain
-- Do not expose PostgreSQL (5433) or Redis (6379) ports to the public internet
-- Add rate limiting to auth endpoints (see `routes/api.php`)
-- Serve over HTTPS (required for microphone access in browsers, and for
-  secure cookie/token handling)
+The defaults are tuned for local use. Before exposing the app publicly:
 
+- Set `APP_ENV=production` and `APP_DEBUG=false`
+- Generate fresh `APP_KEY` and Reverb keys, change the default PostgreSQL password
+- Restrict `FRONTEND_URL` and Reverb `allowed_origins` to your domain
+- Do not expose PostgreSQL (5433) or Redis (6379) to the internet
+- Serve over HTTPS (browsers require it for microphone access)
 
-## Known Issues
+## Known issues
 
-- `league/commonmark` (a transitive dependency pulled in by Laravel core)
-  currently has open security advisories with no patched stable version
-  available yet upstream. This package is not used to render any
-  user-supplied content in this project, so practical exploitability is
-  minimal. Acknowledged and suppressed in `composer.json`
-  (`config.audit.ignore`) — will be resolved via `composer update` once
-  upstream publishes a fix.
+- `league/commonmark` (transitive dependency of Laravel) has open advisories without a patched release yet.
+  It is not used to render user-supplied content in this project. Acknowledged in `composer.json`
+  (`config.audit.ignore`) and will be resolved with `composer update` once upstream ships a fix.
 
 ## Roadmap
 
-- [ ] Coding interview mode (Monaco Editor)
-- [ ] Whiteboard / system-design diagramming
+- [x] Streamed interviewer responses
+- [x] Redesigned, accessible, responsive UI
+- [ ] Dockerize speech services
+- [ ] Coding interview mode (Monaco editor)
+- [ ] Whiteboard / system design mode
 - [ ] Company-specific interview styles
-- [ ] Full avatar (Live2D / Three.js)
-- [ ] Dockerize STT/TTS
-- [ ] Complete frontend realtime streaming
-
-## License
-
-MIT — see [LICENSE](LICENSE)
+- [ ] Full 3D avatar
+- [ ] Skill tagging for per-technology progress
 
 ## Contributing
 
-Contributions are welcome. Please open an issue before submitting large PRs.
+Issues and pull requests are welcome. Please open an issue before large changes.
+
+## License
+
+[MIT](LICENSE)
