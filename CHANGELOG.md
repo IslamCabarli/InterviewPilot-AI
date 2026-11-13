@@ -22,6 +22,7 @@
 - Ollama runs on the host instead of Docker and uses the GPU automatically
 - Routes are lazy loaded
 
+
 ### Fixed
 - Resuming an unfinished interview after leaving the page
 - Stale dashboard data after switching accounts
