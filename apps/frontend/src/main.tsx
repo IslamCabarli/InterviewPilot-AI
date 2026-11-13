@@ -10,6 +10,9 @@ import RouteEffects from './components/RouteEffects'
 import { ToastViewport } from './components/ui'
 import App from './App'
 import './theme/themeStore'
+import '@fontsource-variable/inter'
+import '@fontsource-variable/space-grotesk'
+import '@fontsource-variable/jetbrains-mono'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(

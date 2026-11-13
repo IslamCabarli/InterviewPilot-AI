@@ -47,11 +47,10 @@
 }
 
 @theme {
-    --font-display: "Space Grotesk", sans-serif;
-    --font-body: "Inter", sans-serif;
-    --font-mono: "JetBrains Mono", monospace;
+    --font-display: "Space Grotesk Variable", system-ui, sans-serif;
+    --font-body: "Inter Variable", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 }
-
 @layer base {
     body {
         @apply bg-bg font-body text-text-primary antialiased;
