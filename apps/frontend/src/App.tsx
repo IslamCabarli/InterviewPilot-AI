@@ -1,17 +1,20 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router'
 import { GuestRoute } from './auth/GuestRoute'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import Layout from './components/Layout'
-import Dashboard from './pages/Dashboard'
-import Interview from './pages/Interview'
-import InterviewReport from './pages/InterviewReport'
+import LoadingScreen from './components/LoadingScreen'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
-import Profile from './pages/Profile'
 import Register from './pages/Register'
-import Settings from './pages/Settings'
-import UiKit from './pages/UiKit'
+
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Interview = lazy(() => import('./pages/Interview'))
+const InterviewReport = lazy(() => import('./pages/InterviewReport'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Settings = lazy(() => import('./pages/Settings'))
+const UiKit = lazy(() => import('./pages/UiKit'))
 
 export default function App() {
   return (
@@ -32,7 +35,16 @@ export default function App() {
         </Route>
       </Route>
 
-      {import.meta.env.DEV && <Route path="/ui" element={<UiKit />} />}
+      {import.meta.env.DEV && (
+        <Route
+          path="/ui"
+          element={
+            <Suspense fallback={<LoadingScreen />}>
+              <UiKit />
+            </Suspense>
+          }
+        />
+      )}
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
