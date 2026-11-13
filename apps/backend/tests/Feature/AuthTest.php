@@ -3,10 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
-use Database\Seeders\RoleSeeder;
 
 class AuthTest extends TestCase
 {

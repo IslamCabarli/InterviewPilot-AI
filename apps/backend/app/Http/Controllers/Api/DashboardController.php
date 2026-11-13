@@ -17,6 +17,7 @@ class DashboardController extends Controller
         'problem_solving' => 20,
         'best_practices' => 20,
     ];
+
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
     ) {}

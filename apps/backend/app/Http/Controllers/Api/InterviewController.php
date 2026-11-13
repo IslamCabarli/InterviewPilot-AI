@@ -17,6 +17,7 @@ use OpenApi\Attributes as OA;
 class InterviewController extends Controller
 {
     private const BROADCAST_INTERVAL = 0.08;
+
     public function __construct(
         private readonly AiProviderInterface $aiProvider,
         private readonly InterviewPromptBuilder $promptBuilder,
@@ -59,7 +60,6 @@ class InterviewController extends Controller
             'status' => 'in_progress',
             'started_at' => now(),
         ]);
-
 
         $cvText = $interview->use_cv ? $request->user()->cv_text : null;
         $systemPrompt = $this->promptBuilder->build($validated['type'], $validated['difficulty'], $cvText);
@@ -257,5 +257,4 @@ class InterviewController extends Controller
 
         return response()->json(['interview' => $interview]);
     }
-
 }
