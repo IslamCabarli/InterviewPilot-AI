@@ -9,19 +9,12 @@ import { cn } from '../lib/cn'
 import { getApiErrorMessage } from '../lib/errors'
 import { getInitials } from '../lib/initials'
 import { toast } from '../lib/toast'
+import { formatDate } from '../lib/dates'
 
 const MAX_CV_BYTES = 5 * 1024 * 1024
 
 function isPdf(file: File) {
   return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
-}
-
-function formatDate(value: string | null | undefined) {
-  if (!value) return null
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return null
-
-  return date.toLocaleDateString('az-AZ', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export default function Profile() {
@@ -31,7 +24,7 @@ export default function Profile() {
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const { data: cv, isLoading } = useQuery({ queryKey: ['cv-status'], queryFn: getCvStatus })
-  const uploadedOn = formatDate(cv?.uploadedAt)
+  const uploadedOn = formatDate(cv?.uploadedAt, { year: true })
 
   const uploadMutation = useMutation({
     mutationFn: (file: File) => uploadCv(file),

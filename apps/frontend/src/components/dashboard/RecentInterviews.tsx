@@ -4,14 +4,8 @@ import type { RecentInterview } from '../../api/dashboard'
 import { getScoreTone } from '../../lib/score'
 import { getDifficultyLabel, getTypeLabel } from '../interview/options'
 import { Badge, Card, Eyebrow } from '../ui'
+import { formatDate } from '../../lib/dates'
 
-function formatDate(value: string | null) {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-
-  return date.toLocaleDateString('az-AZ', { day: 'numeric', month: 'long' })
-}
 
 export default function RecentInterviews({ interviews }: { interviews: RecentInterview[] }) {
   if (interviews.length === 0) return null
