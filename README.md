@@ -2,7 +2,6 @@
 
 > Practice real technical interviews with an AI interviewer. Open source, runs entirely on your machine.
 
-[![CI](https://github.com/IslamCabarli/InterviewPilot-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/IslamCabarli/InterviewPilot-AI/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 InterviewPilot AI is a self-hosted mock interview platform. A local LLM (Ollama) plays the interviewer,
@@ -27,7 +26,7 @@ and your voice, CV and answers never leave your machine.
 
 | Dashboard | Dashboard (dark) |
 |---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Dashboard dark](docs/screenshots/dashboard-dark.png) |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Dashboard dark](docs/screenshots/dashboard-dark.png![img.png](img.png)) |
 
 | Interview setup | Interview |
 |---|---|
@@ -35,7 +34,7 @@ and your voice, CV and answers never leave your machine.
 
 | Report | Mobile |
 |---|---|
-| ![Report](docs/screenshots/report.png) | ![Mobile dashboard](docs/screenshots/mobile-dashboard.png) ![Mobile interview](docs/screenshots/mobile-interview.png) |
+| ![Report](docs/screenshots/report.png) ![Report](docs/screenshots/report-percentage.png) | ![Mobile dashboard](docs/screenshots/mobile-dashboard.png) ![Mobile interview](docs/screenshots/mobile-interview.png) |
 
 ## Tech stack
 
