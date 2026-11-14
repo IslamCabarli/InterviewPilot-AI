@@ -26,7 +26,7 @@ and your voice, CV and answers never leave your machine.
 
 | Dashboard | Dashboard (dark) |
 |---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Dashboard dark](docs/screenshots/dashboard-dark.png![img.png](img.png)) |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Dashboard dark](docs/screenshots/dashboard-dark.png) |
 
 | Interview setup | Interview |
 |---|---|
